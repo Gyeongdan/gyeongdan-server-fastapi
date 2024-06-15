@@ -6,6 +6,9 @@ name = "pypi"
 [packages]
 fastapi = "*"
 uvicorn = {extras = ["standard"], version = "*"}
+sqlalchemy = "*"
+aiofiles = "*"
+regex = "*"
 
 [dev-packages]
 pylint = "*"
