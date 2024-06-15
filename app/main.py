@@ -1,6 +1,12 @@
 from fastapi import FastAPI
 
+from app.config.middlewares.request_response_logging_middle_ware import (
+    LoggingMiddleware,
+)
+
 app = FastAPI()
+
+app.add_middleware(LoggingMiddleware)
 
 
 @app.get("/")
