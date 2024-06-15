@@ -8,6 +8,12 @@ fastapi = "*"
 uvicorn = {extras = ["standard"], version = "*"}
 
 [dev-packages]
+pylint = "*"
+flake8 = "*"
+black = "*"
+pre-commit = "*"
+autoflake = "*"
+isort = "*"
 
 [requires]
 python_version = "3.12"
