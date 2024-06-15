@@ -9,14 +9,15 @@ uvicorn = {extras = ["standard"], version = "*"}
 sqlalchemy = "*"
 aiofiles = "*"
 regex = "*"
+loguru = "*"
 
 [dev-packages]
-pylint = "*"
 flake8 = "*"
 black = "*"
 pre-commit = "*"
 autoflake = "*"
 isort = "*"
+pylint = "*"
 
 [requires]
 python_version = "3.12"

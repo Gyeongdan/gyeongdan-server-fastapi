@@ -1,4 +1,3 @@
-import os
 from collections.abc import AsyncGenerator
 
 from fastapi import HTTPException
@@ -33,6 +32,8 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
         except Exception as error:
             await session.rollback()
             logger.error(f"Unexpected error: {error}")
-            raise HTTPException(status_code=500, detail="Unexpected error") from error
+            raise HTTPException(
+                status_code=500, detail="Unexpected error"
+            ) from error  # pylint: disable=line-too-long
         finally:
             await session.close()

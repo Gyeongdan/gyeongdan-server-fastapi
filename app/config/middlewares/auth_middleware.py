@@ -3,6 +3,7 @@ from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
+from app.utils.generic_response import GenericResponseDTO
 
 WHITELISTED_IPS = [
     "59.20.239.26"  # 운영사무실
@@ -25,7 +26,12 @@ class AuthMiddleware(BaseHTTPMiddleware):
         if client_ip not in WHITELISTED_IPS:
             return JSONResponse(
                 status_code=403,
-                content={GenericResponseDTO(result=False, message="IP is not allowed")},
+                content={
+                    GenericResponseDTO(
+                        result=False,
+                        message="IP is not allowed",
+                    )
+                },
             )
 
         # Check if API key is valid
@@ -33,7 +39,9 @@ class AuthMiddleware(BaseHTTPMiddleware):
         if api_key != API_KEY:
             return JSONResponse(
                 status_code=401,
-                content={GenericResponseDTO(result=False, message="Invalid API key")},
+                content={
+                    GenericResponseDTO(result=False, message="Invalid API key")
+                },  # pylint: disable=line-too-long
             )
 
         response = await call_next(request)

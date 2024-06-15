@@ -28,7 +28,8 @@ class DatabaseRepository(Generic[Model]):
                 await self.session.flush()
                 return instance
             except Exception as error:
-                raise Exception(
+                raise HTTPException(
+                    status_code=500, detail="Unexpected error"
                 ) from error
 
     async def get(self, pk: int) -> Model | None:
@@ -41,7 +42,8 @@ class DatabaseRepository(Generic[Model]):
                 instance = await self.session.get(self.model, pk)
                 return instance
             except Exception as error:
-                raise Exception(
+                raise HTTPException(
+                    status_code=500, detail="Unexpected error"
                 ) from error
 
     async def delete(self, pk: int) -> None:
@@ -55,7 +57,8 @@ class DatabaseRepository(Generic[Model]):
                 if instance:
                     await self.session.delete(instance)
             except Exception as error:
-                raise Exception(
+                raise HTTPException(
+                    status_code=500, detail="Unexpected error"
                 ) from error
 
     async def update_by_pk(self, pk: int, data: dict) -> Model:
@@ -73,7 +76,8 @@ class DatabaseRepository(Generic[Model]):
                 self.session.add(instance)
                 return instance
             except Exception as error:
-                raise Exception(
+                raise HTTPException(
+                    status_code=500, detail="Unexpected error"
                 ) from error
 
     async def update(self, model: Generic[Model], data: dict) -> Model:
@@ -89,7 +93,8 @@ class DatabaseRepository(Generic[Model]):
                 self.session.add(model)
                 return model
             except Exception as error:
-                raise Exception(
+                raise HTTPException(
+                    status_code=500, detail="Unexpected error"
                 ) from error
 
     async def filter(
@@ -101,7 +106,9 @@ class DatabaseRepository(Generic[Model]):
             else self.session.begin()
         ):
             query = (
-                select(self.model).filter(*expressions).order_by(desc(self.model.id))
+                select(self.model)
+                .filter(*expressions)
+                .order_by(desc(self.model.id))  # pylint: disable=line-too-long
             )
             result = await self.session.execute(query)
             return result.scalars().all()

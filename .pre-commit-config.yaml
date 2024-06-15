@@ -32,3 +32,7 @@ repos:
     rev: v3.2.2
     hooks:
       - id: pylint
+        additional_dependencies:
+             - fastapi
+             - sqlalchemy
+             - loguru

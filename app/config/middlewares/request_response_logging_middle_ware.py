@@ -74,7 +74,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             response_log["body"] = "Binary data"
 
         logger.info(
-            f"Response: {json.dumps(response_log, indent=2, ensure_ascii=False)}"
+            f"Response: {json.dumps(response_log, indent=2, ensure_ascii=False)}"  # pylint: disable=line-too-long
         )
 
         # Recreate the response object

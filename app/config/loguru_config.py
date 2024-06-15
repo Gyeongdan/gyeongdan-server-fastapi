@@ -44,7 +44,7 @@ def setup_logger():
     # 콘솔 출력 설정
     logger.add(
         sys.stdout,
-        format="<green>{time}</green> | <level>{level}</level> | <cyan>{name}:{function}</cyan> | {message}",  # pylint: disable=line-too-long
+        format="<green>{time}</green> | <level>{level}</level> | <cyan>{name}:{function}</cyan> | {message}",  # pylint: disable=C0301
     )
 
     logging.getLogger("uvicorn").handlers = [InterceptHandler()]
@@ -79,7 +79,9 @@ def serialize(record):
 
     if "error.message" in message_data:
         error_type = message_data.get("error.type", "UnknownError")
-        error_message = message_data.get("error.message", "No error message provided.")
+        error_message = message_data.get(
+            "error.message", "No error message provided."
+        )  # pylint: disable=line-too-long
         log_entry["message"] = f"{error_type}: {error_message}"
         log_entry["stack_trace"] = message_data["error.stacktrace"]
 
