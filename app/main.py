@@ -5,14 +5,18 @@ from app.config.exception_handler import exception_handler, http_exception_handl
 from app.config.middlewares.request_response_logging_middle_ware import (
     LoggingMiddleware,
 )
-from app.router import article_crud_router
+from app.router.article_crud_router import articles_router
 
 app = FastAPI()
 
+# middlewares
 app.add_middleware(LoggingMiddleware)
 
-app.include_router(article_crud_router.router)
+# routers
+app.include_router(articles_router)
 
+
+# exception handlers
 app.add_exception_handler(Exception, exception_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)
 
