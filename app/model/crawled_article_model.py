@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Enum as SQLAEnum, Text
+from sqlalchemy import Column, Integer, String, func, DateTime, Enum as SQLAEnum, Text
 from sqlalchemy.ext.declarative import declarative_base
 from pydantic import BaseModel, validator
 from enum import Enum
@@ -17,8 +17,8 @@ class CrawledArticle(Base):
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     url = Column(String, unique=True, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
     title = Column(String, nullable=False)
     content = Column(Text, nullable=False)
     newspaper = Column(SQLAEnum(NewspaperEnum), nullable=False)
