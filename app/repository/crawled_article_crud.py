@@ -22,3 +22,11 @@ class CrawledArticleRepository:
     async def get_all(self, session: AsyncSession):
         repository = get_repository(CrawledArticle)(session)
         return await repository.filter()
+
+    async def update_simplified_content(
+        self, id: int, simplified_content: str, session: AsyncSession
+    ):
+        repository = get_repository(CrawledArticle)(session)
+        return await repository.update_by_pk(
+            pk=id, data={"simplified_content": simplified_content}
+        )

@@ -14,11 +14,18 @@ class ArticleService:
         return await CrawledArticleRepository().create(
             article=CrawledArticle(
                 url=url,
-                title="테스트입니당",
-                content="테스트입니다",
+                title="테스트입니당",  # 크롤링한 제목
+                content="테스트입니다",  # 크롤링 한 내용
                 publisher=find_publisher(publisher).name,
             ),
             session=session,
+        )
+
+    async def update_simplified_article(
+        self, id: int, simplified_content: str, session: AsyncSession
+    ) -> CrawledArticle:
+        return await CrawledArticleRepository().update_simplified_content(
+            id=id, simplified_content=simplified_content, session=session
         )
 
     async def get_article_by_id(

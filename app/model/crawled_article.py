@@ -13,6 +13,7 @@ class CrawledArticle(Base):
     publisher = Column(CHAR(255), nullable=False)
     title = Column(String, nullable=False)
     content = Column(Text, nullable=False)
+    simplified_content = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.now, nullable=False)
     updated_at = Column(DateTime, default=datetime.now, nullable=False)
 
