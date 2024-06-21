@@ -1,21 +1,19 @@
 from collections.abc import AsyncGenerator
-
-from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-
 from app.config.loguru_config import logger
+from fastapi import HTTPException
 
-DB_URL = ""
-DB_NAME = ""
-DB_USER = ""
-DB_PASSWORD = ""
+DB_USER = "root"
+DB_PASSWORD = "2120016a!"
+DB_NAME = "mydatabase"
+DB_HOST = "localhost"
+DB_PORT = "3306"
 
-DB_CONFIG = ""
+DB_CONFIG = f"mysql+aiomysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 Base = declarative_base()
-
 
 async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
     engine = create_async_engine(DB_CONFIG)

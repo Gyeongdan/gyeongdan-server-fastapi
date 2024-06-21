@@ -10,6 +10,8 @@ sqlalchemy = "*"
 aiofiles = "*"
 regex = "*"
 loguru = "*"
+aiomysql = "*"
+greenlet = "*"
 
 [dev-packages]
 flake8 = "*"
