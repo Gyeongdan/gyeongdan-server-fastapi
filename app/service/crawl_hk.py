@@ -1,12 +1,9 @@
 from fastapi import HTTPException
-
 import requests
 from bs4 import BeautifulSoup
-
 from app.model.article_model import ArticleResponse
 
-
-async def extract_article(url: str):
+async def extract_article_hk(url: str) -> ArticleResponse:
     # 웹 페이지 가져오기
     try:
         response = requests.get(url)
@@ -18,31 +15,31 @@ async def extract_article(url: str):
     soup = BeautifulSoup(response.text, 'html.parser')
 
     # 제목 추출
-    title_element = soup.find('h2', class_='news_ttl')
+    title_element = soup.find('h1', class_='headline')
     if title_element:
         title = title_element.get_text(strip=True)
     else:
         title = "Title not found"
 
-    # 내용 추출
-    main_section = soup.find('div', class_='news_cnt_detail_wrap')
+    # 본문 추출
+    main_section = soup.find('div', class_='article-body')
     if not main_section:
+        print(f"Main content section not found for URL: {url}")
         raise HTTPException(status_code=404, detail="Main content section not found")
 
-    # refid가 있는 모든 p 태그를 찾습니다
-    paragraphs = main_section.find_all('p', attrs={'refid': True})
-    if not paragraphs:
-        raise HTTPException(status_code=404, detail="No paragraphs with refid found")
-
-    # 텍스트를 저장할 리스트
     content = []
-    for para in paragraphs:
-        if para.get('refid') and para.name == 'p':
-            text = para.get_text(strip=True)
-            content.append(text)
+    paragraphs = main_section.find_all(['p', 'br'])
 
-    # 텍스트를 하나의 문자열로 합치기
-    full_content = "\n".join(content)
+    # 이전 형제 텍스트를 포함해 텍스트를 추출
+    for para in paragraphs:
+        text = para.previous_sibling
+        if text and isinstance(text, str):
+            content.append(text.strip())
+
+    full_content = "\n".join(content).strip()
+
+    if not full_content:
+        print(f"No content found for URL: {url}")
+        raise HTTPException(status_code=404, detail="No content found")
 
     return ArticleResponse(title=title, content=full_content)
-
