@@ -1,3 +1,4 @@
+import os
 from collections.abc import AsyncGenerator
 
 from fastapi import HTTPException
@@ -7,18 +8,18 @@ from sqlalchemy.orm import sessionmaker
 
 from app.config.loguru_config import logger
 
-DB_URL = ""
-DB_NAME = ""
-DB_USER = ""
-DB_PASSWORD = ""
-
-DB_CONFIG = ""
-
 Base = declarative_base()
+
+DB_USER = os.getenv("DATABASE_USERNAME", "postgres")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "password")
+DB_NAME = os.getenv("DB_NAME", "gyeongdan")
+# DB_CONFIG = f"mysql+aiomysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+DB_CONFIG = "postgresql+asyncpg://localhost:5432/gyeongdan"
+
+engine = create_async_engine(DB_CONFIG)
 
 
 async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
-    engine = create_async_engine(DB_CONFIG)
     factory = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     async with factory() as session:

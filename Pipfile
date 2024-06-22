@@ -12,6 +12,8 @@ regex = "*"
 loguru = "*"
 requests = "*"
 beautifulsoup4 = "*"
+greenlet = "*"
+asyncpg = "*"
 
 [dev-packages]
 flake8 = "*"
