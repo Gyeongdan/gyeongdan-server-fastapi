@@ -5,6 +5,7 @@ from app.config.exception_handler import exception_handler, http_exception_handl
 from app.config.middlewares.request_response_logging_middle_ware import (
     LoggingMiddleware,
 )
+from app.router.news_scrap_router import news_scrap_rotuer
 from app.router.article_crud_router import articles_router
 
 app = FastAPI()
@@ -13,6 +14,7 @@ app = FastAPI()
 app.add_middleware(LoggingMiddleware)
 
 # routers
+app.include_router(news_scrap_rotuer)
 app.include_router(articles_router)
 
 
