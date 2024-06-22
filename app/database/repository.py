@@ -4,6 +4,7 @@ from fastapi import Depends, HTTPException
 from sqlalchemy import BinaryExpression, Row, RowMapping, desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import class_mapper
 
 from app.database.session import get_db_session
 
@@ -123,3 +124,7 @@ def get_repository(
         return DatabaseRepository(model, session)
 
     return func
+
+
+def model_to_dict(model):
+    return {c.key: getattr(model, c.key) for c in class_mapper(model.__class__).columns}

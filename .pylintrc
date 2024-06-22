@@ -1,4 +1,4 @@
 [MASTER]
 init-hook='import sys;sys.path.extend(["$(pipenv --venv)/lib/python3.x/site-packages", "."])'
 [MESSAGES CONTROL]
-disable=C0114,C0115,C0116,R0903,E0401
+disable=C0114,C0115,C0116,R0903,E0401,W0622
