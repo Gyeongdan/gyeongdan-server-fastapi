@@ -9,7 +9,7 @@ from app.router.article_crud_router import articles_router
 from app.router.news_scrap_router import news_scrap_rotuer
 
 app = FastAPI()
-
+# 테스트입니다.
 # middlewares
 app.add_middleware(LoggingMiddleware)
 
