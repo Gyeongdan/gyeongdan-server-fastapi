@@ -9,7 +9,6 @@ from app.router.article_crud_router import articles_router
 from app.router.news_scrap_router import news_scrap_rotuer
 
 app = FastAPI()
-
 # middlewares
 app.add_middleware(LoggingMiddleware)
 
@@ -23,11 +22,5 @@ app.add_exception_handler(Exception, exception_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)
 
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
 
 
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}

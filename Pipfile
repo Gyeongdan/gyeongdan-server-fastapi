@@ -10,12 +10,12 @@ sqlalchemy = "*"
 aiofiles = "*"
 regex = "*"
 loguru = "*"
-requests = "*"
 beautifulsoup4 = "*"
 greenlet = "*"
 asyncpg = "*"
 groq = "*"
 openai = "*"
+aiohttp = "*"
 
 [dev-packages]
 flake8 = "*"
