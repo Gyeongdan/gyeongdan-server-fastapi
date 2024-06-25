@@ -17,8 +17,8 @@ class Subscription(Base):
     id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
     name = Column(CHAR(255), nullable=False)
     email_address = Column(String, nullable=False)
-    category = Column(SmallInteger, index=True, nullable=False)
-    status = Column(Boolean, index=True, nullable=False)  # true -> active , false -> unSubscribe
+    category = Column(SmallInteger, nullable=False)
+    status = Column(Boolean, nullable=False)  # true -> active , false -> unSubscribe
     created_at = Column(DateTime, default=datetime.now, nullable=False)
 
 @event.listens_for(Subscription, "before_update", propagate=True)
