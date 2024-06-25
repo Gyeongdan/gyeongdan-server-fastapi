@@ -2,7 +2,6 @@ from typing import List
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.model.article_publisher import find_publisher
 from app.model.subscription import Subscription
 from app.repository.subscription_crud import SubscriptionRepository
 
@@ -28,12 +27,12 @@ class SubscriptionService:
         return await SubscriptionRepository().get(pk=id, session=session)
 
     async def update_status(self, id: int, status:bool, session:AsyncSession) -> Subscription:
-        return await SubscriptionRepository.update_status(
+        return await SubscriptionRepository().update_status(
             id=id, status=status, session=session
         )
 
     async  def update_category(self, id: int, category: int, session:AsyncSession) -> Subscription:
-        return await SubscriptionRepository.update_category(
+        return await SubscriptionRepository().update_category(
             id=id, category=category, session=session
         )
 
