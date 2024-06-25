@@ -5,20 +5,35 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.model.subscription import Subscription
 from app.repository.subscription_crud import SubscriptionRepository
 
+from fastapi import HTTPException
+
+import re
+
+async def validate_email_address(email_address: str):
+    pattern = '^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+    if re.match(pattern, email_address):
+        return True
+    else:
+        return False
 
 class SubscriptionService:
     async def create_subscription(
         self, name: str, email_address: str, category: int , session: AsyncSession
     ) -> Subscription:
-        return await SubscriptionRepository().create(
-            subscription=Subscription(
-                name= name,
-                email_address=email_address,
-                category=category,
-                status=True,
-            ),
-            session=session,
-        )
+        if await validate_email_address(email_address):
+            return await SubscriptionRepository().create(
+                subscription=Subscription(
+                    name= name,
+                    email_address=email_address,
+                    category=category,
+                    status=True,
+                ),
+                session=session,
+            )
+        else :
+            raise HTTPException(
+                status_code=400, detail="email-address의 양식이 올바르지 않습니다."
+            )
 
 
     async def get_subscription_by_id(
