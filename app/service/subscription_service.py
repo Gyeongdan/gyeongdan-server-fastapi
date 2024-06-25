@@ -36,5 +36,8 @@ class SubscriptionService:
             id=id, category=category, session=session
         )
 
+    async def get_active_subcriptions_by_category(self, category: int, session:AsyncSession) -> List[Subscription]:
+        return await SubscriptionRepository().get_active_subscriptions_by_category(category=category, session=session)
+
     async def get_all_subcriptions(self, session: AsyncSession) -> List[Subscription]:
         return await SubscriptionRepository().get_all(session=session)

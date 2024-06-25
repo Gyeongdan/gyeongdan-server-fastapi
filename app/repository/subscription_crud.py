@@ -31,6 +31,9 @@ class SubscriptionRepository:
             pk=id, data={"status": status}
         )
 
+    async def get_active_subscriptions_by_category(self, category:int, session:AsyncSession):
+        repository = get_repository(Subscription)(session)
+        return await repository.filter(status=True, category=category)
 
     async def get_all(self, session: AsyncSession):
         repository = get_repository(Subscription)(session)
