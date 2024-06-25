@@ -26,7 +26,7 @@ async def get_subscription_by_id(id: int, session: AsyncSession = Depends(get_db
 async def update_status(id:int, status:bool, session: AsyncSession = Depends(get_db_session)):
     return await SubscriptionService().update_status(id, status, session)
 
-@subscription_router.post("/subscriptions/category")
+@subscription_router.get("/subscriptions/category/{category}")
 async def get_active_subscriptions_by_category(category: int, session: AsyncSession = Depends(get_db_session)):
     return await SubscriptionService().get_active_subcriptions_by_category(category, session)
 
