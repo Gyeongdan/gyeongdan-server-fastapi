@@ -1,7 +1,14 @@
 from fastapi import HTTPException
-import requests
+import aiohttp
 from bs4 import BeautifulSoup
 from app.model.article_model import ArticleResponse, news_settings
+
+async def fetch_page(url: str) -> str:
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            if response.status != 200:
+                raise HTTPException(status_code=400, detail=f"Error fetching the URL: {response.status}")
+            return await response.text()
 
 async def extract_article(news_type: str, url: str) -> ArticleResponse:
     if news_type not in news_settings:
@@ -11,13 +18,12 @@ async def extract_article(news_type: str, url: str) -> ArticleResponse:
 
     # 웹 페이지 가져오기
     try:
-        response = requests.get(url)
-        response.raise_for_status()
-    except requests.exceptions.RequestException as e:
+        response_text = await fetch_page(url)
+    except aiohttp.ClientError as e:
         raise HTTPException(status_code=400, detail=f"Error fetching the URL: {str(e)}")
 
     # HTML 파싱
-    soup = BeautifulSoup(response.text, 'html.parser')
+    soup = BeautifulSoup(response_text, 'html.parser')
 
     # 제목 추출
     title_element = soup.find(settings["title_tag"], class_=settings["title_class"])
@@ -36,12 +42,12 @@ async def extract_article(news_type: str, url: str) -> ArticleResponse:
         raise HTTPException(status_code=404, detail="No content found")
 
     content = []
-    if news_type == "maekyung":
+    if news_type == "MAE_KYUNG":
         for para in paragraphs:
             if para.get('refid') and para.name == 'p':
                 text = para.get_text(strip=True)
                 content.append(text)
-    elif news_type == "hankyung" or news_type == "seokyung":
+    elif news_type == "HAN_KYUNG" or news_type == "SEOUL_KUNG":
         for para in paragraphs:
             if para.name == 'p':
                 content.append(para.get_text(strip=True))
