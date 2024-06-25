@@ -8,12 +8,12 @@ from app.repository.subscription_crud import SubscriptionRepository
 
 class SubscriptionService:
     async def create_subscription(
-        self, name: str, address: str, category: int , session: AsyncSession
+        self, name: str, email_address: str, category: int , session: AsyncSession
     ) -> Subscription:
         return await SubscriptionRepository().create(
             subscription=Subscription(
                 name= name,
-                email_address=address,
+                email_address=email_address,
                 category=category,
                 status=True,
             ),
