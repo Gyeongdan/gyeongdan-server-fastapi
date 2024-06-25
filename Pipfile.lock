@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "e646e89978a00afb3fdacb938985d7044d1e6fadc7a722dc5e741a57b2f008f3"
+            "sha256": "c68af9dcb1a75e8edde6c2edd2a0afd766e980248c1505124cf29835a024c2eb"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -211,6 +211,14 @@
             "markers": "python_version >= '3.7'",
             "version": "==8.1.7"
         },
+        "distro": {
+            "hashes": [
+                "sha256:2fa77c6fd8940f116ee1d6b94a2f90b13b5ea8d019b98bc8bafdcabcdd9bdbed",
+                "sha256:7bffd925d65168f85027d8da9af6bddab658135b840670a223589bc0c8ef02b2"
+            ],
+            "markers": "python_version >= '3.6'",
+            "version": "==1.9.0"
+        },
         "dnspython": {
             "hashes": [
                 "sha256:5ef3b9680161f6fa89daf8ad451b5f1a33b18ae8a1c6778cdf4b43f08c0a6e50",
@@ -308,6 +316,15 @@
             "index": "pypi",
             "markers": "python_version >= '3.7'",
             "version": "==3.0.3"
+        },
+        "groq": {
+            "hashes": [
+                "sha256:130ed5e35d3acfaab46b9e7a078eeaebf91052f4a9d71f86f87fb319b5fec332",
+                "sha256:d0e46f4ad645504672bb09c8100af3ced3a7db0d5119dc13e4aca535fc455874"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.7'",
+            "version": "==0.9.0"
         },
         "h11": {
             "hashes": [
@@ -480,6 +497,15 @@
             ],
             "markers": "python_version >= '3.7'",
             "version": "==0.1.2"
+        },
+        "openai": {
+            "hashes": [
+                "sha256:7b26544cef80f125431c073ffab3811d2421fbb9e30d3bd5c2436aba00b042d5",
+                "sha256:d6177087f150b381d49499be782d764213fdf638d391b29ca692b84dd675a389"
+            ],
+            "index": "pypi",
+            "markers": "python_full_version >= '3.7.1'",
+            "version": "==1.35.3"
         },
         "orjson": {
             "hashes": [
@@ -895,6 +921,14 @@
             ],
             "markers": "python_version >= '3.8'",
             "version": "==0.37.2"
+        },
+        "tqdm": {
+            "hashes": [
+                "sha256:b75ca56b413b030bc3f00af51fd2c1a1a5eac6a0c1cca83cbb37a5c52abce644",
+                "sha256:e4d936c9de8727928f3be6079590e97d9abfe8d39a590be678eb5919ffc186bb"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==4.66.4"
         },
         "typer": {
             "hashes": [
