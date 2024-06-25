@@ -7,7 +7,6 @@ from app.service.subscription_service import SubscriptionService
 
 subscription_router = APIRouter()
 
-
 class SubcriptionCreateRequestDTO(BaseModel):
     name : str
     emailAddress : str
@@ -19,14 +18,12 @@ async def create_subscription(
 ):
     return await SubscriptionService().create_subscription(name, email_address, category, session)
 
-
-
 @subscription_router.get("/subscriptions/{id}")
 async def get_subscription_by_id(id: int, session: AsyncSession = Depends(get_db_session)):
     return await SubscriptionService().get_subscription_by_id(id, session)
 
-@subscription_router.post("/subscriptions/{id}/state")
-async def update_status(id:int, status:bool , session: AsyncSession = Depends(get_db_session)):
+@subscription_router.post("/subscriptions/{id}/status")
+async def update_status(id:int, status:bool, session: AsyncSession = Depends(get_db_session)):
     return await SubscriptionService().update_status(id, status, session)
 
 @subscription_router.post("/subscriptions/{id}/category")
