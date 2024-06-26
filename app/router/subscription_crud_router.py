@@ -17,7 +17,7 @@ class SubcriptionResponseDTO(BaseModel):
     category : int
     status : bool
 
-def subcription_to_subscriptionResponseDTO(subscription : Subscription) :
+async def subcription_to_subscriptionResponseDTO(subscription : Subscription) :
     return SubcriptionResponseDTO(
         name=subscription.name,
         email_address=subscription.email_address,
@@ -25,7 +25,7 @@ def subcription_to_subscriptionResponseDTO(subscription : Subscription) :
         status=subscription.status
     )
 
-def subcription_list_to_subscriptionResponseDTO_list(subscriptions : List[Subscription]) :
+async def subcription_list_to_subscriptionResponseDTO_list(subscriptions : List[Subscription]) :
     return list(map(subcription_to_subscriptionResponseDTO, subscriptions))
 
 @subscription_router.post("/subscriptions/save", response_model=GenericResponseDTO[int])
@@ -43,7 +43,7 @@ async def create_subscription(
 async def get_subscription_by_id(id: int, session: AsyncSession = Depends(get_db_session)):
     subscription = await SubscriptionService().get_subscription_by_id(id, session)
     return GenericResponseDTO[SubcriptionResponseDTO](
-        data=subcription_to_subscriptionResponseDTO(subscription),
+        data= await subcription_to_subscriptionResponseDTO(subscription),
         message="Subscription retrieved successfully",
         result=True
     )
@@ -52,7 +52,7 @@ async def get_subscription_by_id(id: int, session: AsyncSession = Depends(get_db
 async def update_status(id:int, status:bool, session: AsyncSession = Depends(get_db_session)):
     subscription =  await SubscriptionService().update_status(id, status, session)
     return GenericResponseDTO[SubcriptionResponseDTO](
-            data=subcription_to_subscriptionResponseDTO(subscription),
+            data= await subcription_to_subscriptionResponseDTO(subscription),
             message="Subscription Status Updated successfully",
             result=True
         )
@@ -61,7 +61,7 @@ async def update_status(id:int, status:bool, session: AsyncSession = Depends(get
 async def get_active_subscriptions_by_category(category: int, session: AsyncSession = Depends(get_db_session)):
     subscriptions = await SubscriptionService().get_active_subcriptions_by_category(category, session)
     return GenericResponseDTO[List[SubcriptionResponseDTO]](
-        data= subcription_list_to_subscriptionResponseDTO_list(subscriptions),
+        data= await subcription_list_to_subscriptionResponseDTO_list(subscriptions),
         message="Subscriptions retrieved successfully",
         result=True
     )
@@ -70,7 +70,7 @@ async def get_active_subscriptions_by_category(category: int, session: AsyncSess
 async def update_category(id:int, category:int, session:AsyncSession = Depends(get_db_session)):
     subscription = await SubscriptionService().update_category(id, category, session)
     return GenericResponseDTO[SubcriptionResponseDTO](
-        data=subcription_to_subscriptionResponseDTO(subscription),
+        data= await subcription_to_subscriptionResponseDTO(subscription),
         message="Subscription Category Updated successfully",
         result=True
     )
@@ -79,7 +79,7 @@ async def update_category(id:int, category:int, session:AsyncSession = Depends(g
 async def get_all_subscriptions(session: AsyncSession = Depends(get_db_session)):
     subscriptions = await SubscriptionService().get_all_subcriptions(session)
     return GenericResponseDTO[List[SubcriptionResponseDTO]](
-        data= subcription_list_to_subscriptionResponseDTO_list(subscriptions),
+        data= await subcription_list_to_subscriptionResponseDTO_list(subscriptions),
         message="Subscriptions retrieved successfully",
         result=True
     )
