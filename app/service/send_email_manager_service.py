@@ -31,3 +31,10 @@ class ManagerService:
 
     async def get_content_by_category(self, category: int, session: AsyncSession) -> List[SendEmailManager]:
         return await SendEmailManagerRepository().get_by_category(category=category, session=session)
+
+    async def update_content(
+            self, id: int, content: str, session: AsyncSession
+    ) -> SendEmailManager:
+        return await SendEmailManagerRepository().update_by_id(
+            id=id, content=content, session=session
+        )

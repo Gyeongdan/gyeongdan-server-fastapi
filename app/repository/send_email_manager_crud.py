@@ -37,3 +37,12 @@ class SendEmailManagerRepository:
             select(SendEmailManager).where(SendEmailManager.category == category)
         )
         return result.scalars().all()
+
+# 기사 내용을 수정해야 할 때 사용
+    async def update_by_id(
+            self, id: int, content: str, session: AsyncSession
+    ):
+        repository = get_repository(SendEmailManager)(session)
+        return await repository.update_by_pk(
+            pk=id, data={"content": content}
+        )
