@@ -19,3 +19,15 @@ class ManagerService:
             ),
             session=session
         )
+
+# json 형식으로 반환
+    async def get_content_by_id(
+            self, id: int, session: AsyncSession
+    ) -> SendEmailManager:
+        return await SendEmailManagerRepository().get_by_id(pk=id, session=session)
+
+    async def get_all_contents(self, session: AsyncSession) -> List[SendEmailManager]:
+        return await SendEmailManagerRepository().get_all(session=session)
+
+    async def get_content_by_category(self, category: int, session: AsyncSession) -> List[SendEmailManager]:
+        return await SendEmailManagerRepository().get_by_category(category=category, session=session)

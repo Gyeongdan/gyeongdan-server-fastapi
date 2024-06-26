@@ -21,3 +21,14 @@ async def create_manager(
 ):
     return await ManagerService().create_manager(category, content, session)
 
+@email_manager_router.get('/send_email_manager/{id}')
+async def get_content_by_id(id: int, session: AsyncSession = Depends(get_db_session)):
+    return await ManagerService().get_content_by_id(id, session)
+
+@email_manager_router.get('/send_email_manager')
+async def get_all(session: AsyncSession = Depends(get_db_session)):
+    return await ManagerService().get_all_contents(session)
+
+@email_manager_router.get('/send_email_manager/search/{category}')
+async def get_content_by_category(category: int, session: AsyncSession = Depends(get_db_session)):
+    return await ManagerService().get_content_by_category(category, session)
