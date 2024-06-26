@@ -1,7 +1,6 @@
 # send_email_manager_service.py
 
 from typing import List
-from sqlalchemy import SmallInteger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.model.send_email_manager import SendEmailManager
@@ -36,5 +35,5 @@ class ManagerService:
             self, id: int, content: str, session: AsyncSession
     ) -> SendEmailManager:
         return await SendEmailManagerRepository().update_by_id(
-            id=id, content=content, session=session
+                id=id, content=content, session=session
         )

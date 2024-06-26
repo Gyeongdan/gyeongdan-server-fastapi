@@ -3,7 +3,7 @@
 
 
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 # 여기는 나중에 제거할 생각
@@ -38,11 +38,12 @@ class SendEmailManagerRepository:
         )
         return result.scalars().all()
 
-# 기사 내용을 수정해야 할 때 사용
+    # 기사 내용을 수정해야 할 때 사용
+    # 추가로 업데이트 된 시간도 수정
     async def update_by_id(
             self, id: int, content: str, session: AsyncSession
     ):
         repository = get_repository(SendEmailManager)(session)
         return await repository.update_by_pk(
-            pk=id, data={"content": content}
+                pk=id, data={"content": content, "updated_at": func.now()}
         )
