@@ -20,7 +20,7 @@ class SubscriptionService:
     async def create_subscription(
         self, name: str, email_address: str, category: int , session: AsyncSession
     ) -> Subscription:
-        validate_email_address(email_address)
+        await validate_email_address(email_address)
         return await SubscriptionRepository().create(
             subscription=Subscription(
                 name= name,
