@@ -16,6 +16,7 @@ asyncpg = "*"
 groq = "*"
 openai = "*"
 aiohttp = "*"
+aiosmtplib = "*"
 
 [dev-packages]
 flake8 = "*"
