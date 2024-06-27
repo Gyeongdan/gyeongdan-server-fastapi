@@ -16,7 +16,7 @@ class ArticleCreateRequestDTO(BaseModel):
 
 
 @news_scrap_rotuer.post(
-    "/extract-article/{news_type}", response_model=GenericResponseDTO[ArticleResponse]
+    "/extract-article", response_model=GenericResponseDTO[ArticleResponse]
 )
 async def extract_article_api(
     articleCreateRequestDTO: ArticleCreateRequestDTO,
