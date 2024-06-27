@@ -34,5 +34,5 @@ async def get_content_by_category(category: int, session: AsyncSession = Depends
     return await ManagerService().get_content_by_category(category, session)
 
 @email_manager_router.put('/send_email_manager/update')
-async def update_content_by_id(id: int, content: str, session: AsyncSession = Depends(get_db_session)):
-    return await ManagerService().update_content(id, content, session)
+async def update_content_by_id(id: int, category: int, content: str, session: AsyncSession = Depends(get_db_session)):
+    return await ManagerService().update_content(id, category, content, session)

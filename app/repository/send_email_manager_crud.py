@@ -41,9 +41,9 @@ class SendEmailManagerRepository:
     # 기사 내용을 수정해야 할 때 사용
     # 추가로 업데이트 된 시간도 수정
     async def update_by_id(
-            self, id: int, content: str, session: AsyncSession
+            self, id: int, category: int, content: str, session: AsyncSession
     ):
         repository = get_repository(SendEmailManager)(session)
         return await repository.update_by_pk(
-                pk=id, data={"content": content, "updated_at": func.now()}
+                pk=id, data={"category": category, "content": content, "updated_at": func.now()}
         )
