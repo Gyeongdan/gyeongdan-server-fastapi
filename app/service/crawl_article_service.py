@@ -4,9 +4,11 @@ import aiohttp
 from aiohttp import ClientSession
 from bs4 import BeautifulSoup
 from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.model.article_model import ArticleResponse
 from app.model.article_publisher import Publisher, find_publisher
+from app.service.crawled_article_service import ArticleService
 
 
 async def fetch_page(url: str) -> str:
@@ -19,7 +21,9 @@ async def fetch_page(url: str) -> str:
             return await response.text()
 
 
-async def extract_article(news_type: str, url: str) -> ArticleResponse:
+async def extract_article(
+    news_type: str, url: str, session: AsyncSession
+) -> ArticleResponse:
     news_type = find_publisher(news_type)
 
     # 웹 페이지 가져오기
@@ -59,6 +63,7 @@ async def extract_article(news_type: str, url: str) -> ArticleResponse:
     if not full_content.strip():
         raise HTTPException(status_code=404, detail="파싱 결과가 없습니다.")
 
+    await save_article_to_db(url, news_type, title, full_content, session)
     return ArticleResponse(title=title, content=full_content)
 
 
@@ -76,3 +81,11 @@ def find_main_section(result_html: BeautifulSoup, news_type: Publisher):
     if not main_section:
         raise HTTPException(status_code=404, detail="Main content section not found")
     return main_section
+
+
+async def save_article_to_db(
+    url: str, publisher: Publisher, title: str, content: str, session: AsyncSession
+):
+    return await ArticleService().create_article(
+        url=url, publisher=publisher, title=title, content=content, session=session
+    )
