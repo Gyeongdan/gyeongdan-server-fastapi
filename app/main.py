@@ -7,7 +7,7 @@ from app.config.middlewares.request_response_logging_middle_ware import (
 )
 from app.router.article_crud_router import articles_router
 from app.router.news_scrap_router import news_scrap_rotuer
-from app.router.send_email_manager_crud_router import email_manager_router
+from app.router.newsletter_article_crud_router import newsletter_article_router
 from app.router.subscription_crud_router import subscription_router
 
 app = FastAPI()
@@ -18,7 +18,7 @@ app.add_middleware(LoggingMiddleware)
 app.include_router(news_scrap_rotuer)
 app.include_router(articles_router)
 app.include_router(subscription_router)
-app.include_router(email_manager_router)
+app.include_router(newsletter_article_router)
 
 
 # exception handlers
