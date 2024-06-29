@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.repository import get_repository, model_to_dict
 from app.model.newsletter_article import NewsletterArticle
+from app.model.subscription import MailTypeCategory
 
 
 class NewsletterArticleRepository:
@@ -29,18 +30,22 @@ class NewsletterArticleRepository:
         repository = get_repository(NewsletterArticle)(session)
         return await repository.filter()
 
-    async def get_by_category(self, category: int, session: AsyncSession):
+    async def get_by_category(self, category: MailTypeCategory, session: AsyncSession):
         result = await session.execute(
-            select(NewsletterArticle).where(NewsletterArticle.category == category)
+            select(NewsletterArticle).where(NewsletterArticle.category == category.name)
         )
         return result.scalars().all()
 
     async def update_by_id(
-        self, id: int, category: int, content: str, session: AsyncSession
+        self, id: int, category: MailTypeCategory, content: str, session: AsyncSession
     ):
         repository = get_repository(NewsletterArticle)(session)
         now_time = datetime.datetime.now()
         return await repository.update_by_pk(
             pk=id,
-            data={"category": category, "content": content, "updated_at": now_time},
+            data={
+                "category": category.name,
+                "content": content,
+                "updated_at": now_time,
+            },
         )

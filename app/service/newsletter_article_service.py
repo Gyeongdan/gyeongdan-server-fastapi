@@ -5,15 +5,16 @@ from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.model.newsletter_article import NewsletterArticle
+from app.model.subscription import MailTypeCategory
 from app.repository.newsletter_article_crud import NewsletterArticleRepository
 
 
 class NewsletterService:
     async def create_article(
-        self, category: int, content: str, session: AsyncSession
+        self, category: MailTypeCategory, content: str, session: AsyncSession
     ) -> NewsletterArticle:
         return await NewsletterArticleRepository().create(
-            article_manager=NewsletterArticle(category=category, content=content),
+            article_manager=NewsletterArticle(category=category.name, content=content),
             session=session,
         )
 
@@ -26,14 +27,14 @@ class NewsletterService:
         return await NewsletterArticleRepository().get_all(session=session)
 
     async def get_content_by_category(
-        self, category: int, session: AsyncSession
+        self, category: MailTypeCategory, session: AsyncSession
     ) -> List[NewsletterArticle]:
         return await NewsletterArticleRepository().get_by_category(
             category=category, session=session
         )
 
     async def update_content(
-        self, id: int, category: int, content: str, session: AsyncSession
+        self, id: int, category: MailTypeCategory, content: str, session: AsyncSession
     ) -> NewsletterArticle:
         return await NewsletterArticleRepository().update_by_id(
             id=id, category=category, content=content, session=session
