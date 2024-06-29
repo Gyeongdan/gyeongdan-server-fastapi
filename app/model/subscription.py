@@ -7,11 +7,11 @@ from app.database.repository import Base
 
 
 class MailTypeCategory(Enum):
-    ECONOMY_AND_BUSINESS = "Economy and Business"
-    POLITICS_AND_SOCIETY = "Politics and Society"
-    TECHNOLOGY_AND_CULTURE = "Technology and Culture"
-    SPORTS_AND_LEISURE = "Sports and Leisure"
-    OPINION_AND_ANALYSIS = "Opinion and Analysis"
+    ECONOMY_AND_BUSINESS = "경제 및 기업"
+    POLITICS_AND_SOCIETY = "정치 및 사회"
+    TECHNOLOGY_AND_CULTURE = "기술 및 문화"
+    SPORTS_AND_LEISURE = "스포츠 및 여가"
+    OPINION_AND_ANALYSIS = "오피니언 및 분석"
 
 
 class Subscription(Base):
