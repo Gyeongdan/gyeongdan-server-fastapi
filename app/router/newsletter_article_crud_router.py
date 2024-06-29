@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.session import get_db_session
 from app.model.newsletter_article import NewsletterArticle
+from app.model.subscription import MailTypeCategory
 from app.service.newsletter_article_service import NewsletterService
 from app.utils.generic_response import GenericResponseDTO
 
@@ -16,7 +17,7 @@ newsletter_article_router = APIRouter()
 
 
 class NewsletterArticleResponseDTO(BaseModel):
-    category: int
+    category: str
     content: str
     updated_at: datetime
 
@@ -37,7 +38,9 @@ async def list_to_dto_list(newsletter_article: List[NewsletterArticle]):
     "/newsletter_article/save", response_model=GenericResponseDTO[int]
 )
 async def create_manager(
-    category: int, content: str, session: AsyncSession = Depends(get_db_session)
+    category: MailTypeCategory,
+    content: str,
+    session: AsyncSession = Depends(get_db_session),
 ):
     newsletter_article = await NewsletterService().create_article(
         category, content, session
@@ -77,7 +80,7 @@ async def get_all(session: AsyncSession = Depends(get_db_session)):
     response_model=GenericResponseDTO[List[NewsletterArticleResponseDTO]],
 )
 async def get_content_by_category(
-    category: int, session: AsyncSession = Depends(get_db_session)
+    category: MailTypeCategory, session: AsyncSession = Depends(get_db_session)
 ):
     newsletter_article = await NewsletterService().get_content_by_category(
         category, session
@@ -93,7 +96,7 @@ async def get_content_by_category(
 )
 async def update_content_by_id(
     id: int,
-    category: int,
+    category: MailTypeCategory,
     content: str,
     session: AsyncSession = Depends(get_db_session),
 ):
