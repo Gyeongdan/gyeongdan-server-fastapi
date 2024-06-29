@@ -2,21 +2,26 @@ from typing import List
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.model.article_publisher import find_publisher
+from app.model.article_publisher import Publisher
 from app.model.crawled_article import CrawledArticle
 from app.repository.crawled_article_crud import CrawledArticleRepository
 
 
 class ArticleService:
     async def create_article(
-        self, url: str, publisher: str, session: AsyncSession
+        self,
+        url: str,
+        publisher: Publisher,
+        title: str,
+        content: str,
+        session: AsyncSession,
     ) -> CrawledArticle:
         return await CrawledArticleRepository().create(
             article=CrawledArticle(
                 url=url,
-                title="테스트입니당",  # 크롤링한 제목
-                content="테스트입니다",  # 크롤링 한 내용
-                publisher=find_publisher(publisher).name,
+                title=title,
+                content=content,
+                publisher=publisher.name,
             ),
             session=session,
         )

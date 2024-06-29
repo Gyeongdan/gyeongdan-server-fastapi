@@ -4,6 +4,7 @@ from datetime import datetime
 
 from sqlalchemy import CHAR, BigInteger, Column, DateTime, Text
 
+
 # Instead of "from sqlalchemy.ext.declarative import declarative_base"
 from app.database.repository import Base
 
