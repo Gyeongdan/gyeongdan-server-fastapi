@@ -13,9 +13,10 @@ from app.service.article_manage_service import ArticleManageService
 
 class CrawlArticleService:
 
-    async def extract_article(
+    async def crawl_article(
         self, news_type: str, url: str, session: AsyncSession
     ) -> ArticleResponse:
+        print(f"news_type: {news_type}, url: {url}")
         news_type = find_publisher(news_type)
 
         # 웹 페이지 가져오기

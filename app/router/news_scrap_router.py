@@ -22,7 +22,7 @@ async def extract_article_api(
     articleCreateRequestDTO: ArticleCreateRequestDTO,
     session: AsyncSession = Depends(get_db_session),
 ):
-    article = await CrawlArticleService().extract_article(
+    article = await CrawlArticleService().crawl_article(
         news_type=articleCreateRequestDTO.publisher,
         url=articleCreateRequestDTO.url,
         session=session,
