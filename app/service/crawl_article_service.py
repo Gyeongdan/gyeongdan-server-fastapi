@@ -4,18 +4,14 @@ import aiohttp
 from aiohttp import ClientSession
 from bs4 import BeautifulSoup
 from fastapi import HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.model.article_model import ArticleResponse
 from app.model.article_publisher import Publisher, find_publisher
-from app.service.article_manage_service import ArticleManageService
 
 
 class CrawlArticleService:
 
-    async def crawl_article(
-        self, news_type: str, url: str, session: AsyncSession
-    ) -> ArticleResponse:
+    async def crawl_article(self, news_type: str, url: str) -> ArticleResponse:
         print(f"news_type: {news_type}, url: {url}")
         news_type = find_publisher(news_type)
 
@@ -56,7 +52,6 @@ class CrawlArticleService:
         if not full_content.strip():
             raise HTTPException(status_code=404, detail="파싱 결과가 없습니다.")
 
-        await self.__save_article_to_db(url, news_type, title, full_content, session)
         return ArticleResponse(title=title, content=full_content)
 
     async def __fetch_page(self, url: str) -> str:
@@ -85,15 +80,3 @@ class CrawlArticleService:
                 status_code=404, detail="Main content section not found"
             )
         return main_section
-
-    async def __save_article_to_db(
-        self,
-        url: str,
-        publisher: Publisher,
-        title: str,
-        content: str,
-        session: AsyncSession,
-    ):
-        return await ArticleManageService().create_article(
-            url=url, publisher=publisher, title=title, content=content, session=session
-        )
