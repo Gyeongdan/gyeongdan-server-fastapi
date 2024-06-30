@@ -1,3 +1,4 @@
+import os
 from typing import List, Optional
 
 from groq import AsyncGroq
@@ -9,15 +10,14 @@ from app.model.ai_client.ai_client import AIClient, LLMModel
 class GroqClient(AIClient):
     _instance = None
 
-    @classmethod
-    def get_instance(cls) -> "GroqClient":
+    def __new__(cls):
         if cls._instance is None:
-            cls._instance = cls(api_key="key 넣으면 됨")
+            cls._instance = super(GroqClient, cls).__new__(cls)
         return cls._instance
 
-    def __init__(self, api_key: str):
-        if not hasattr(self, "client"):
-            self.client = AsyncGroq(api_key=api_key)
+    def __init__(self):
+        if not hasattr(self, "ai_client"):
+            self.client = AsyncGroq(api_key=os.getenv("GROQ_API_KEY"))
 
     async def request(
         self,
