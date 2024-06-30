@@ -7,7 +7,7 @@ from app.model.crawled_article import CrawledArticle
 from app.repository.crawled_article_crud import CrawledArticleRepository
 
 
-class ArticleService:
+class ArticleManageService:
     async def create_article(
         self,
         url: str,
