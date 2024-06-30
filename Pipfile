@@ -25,6 +25,7 @@ pre-commit = "*"
 autoflake = "*"
 isort = "*"
 pylint = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.12"
