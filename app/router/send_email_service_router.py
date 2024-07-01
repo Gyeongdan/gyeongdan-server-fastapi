@@ -1,6 +1,7 @@
 # send_email_service_router.py
 
 from datetime import datetime, timedelta
+from enum import Enum
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,6 +11,12 @@ from app.model.subscription import MailTypeCategory
 from app.service.newsletter_article_service import NewsletterService
 from app.service.send_email_service import SendEmailService
 from app.service.subscription_service import SubscriptionService
+
+
+class TimeDelta(Enum):
+    # 12 시간 안에 신규 기사만 선정
+    RECENT_HOURS = 12
+
 
 send_email_service_router = APIRouter()
 
@@ -38,7 +45,8 @@ async def send_email(
         news_letter.content
         for news_letter in news_letters
         # 기준을 12시간 안에 기사가 생성됐냐 안됐냐로 따졌습니다. 이는 조정하면 될 것 같습니다!
-        if news_letter.updated_at >= (time_now - timedelta(hours=12))
+        if news_letter.updated_at
+        >= (time_now - timedelta(hours=TimeDelta.RECENT_HOURS))
     ]
 
     # 기사를 카테고리 별로 보낼 때, 하나의 주제는 하나의 메일로 보내는 것이 좋을 듯 하여 이런 코드를 짰습니다!
