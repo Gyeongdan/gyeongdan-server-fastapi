@@ -29,8 +29,8 @@ class Publisher(Enum):
         title_tag="h2",
         title_class="news_ttl",
         content_div_class="news_cnt_detail_wrap",
-        content_tags=["p"],
-        content_attrs={"refid": True},
+        content_tags=["p", "br"],  # p와 br 태그 추출
+        content_attrs={},
     )
     SEOUL_KYUNG = PublisherInfo(
         kr_name="서울경제",

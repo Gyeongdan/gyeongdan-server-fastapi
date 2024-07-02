@@ -12,7 +12,6 @@ from app.model.article_publisher import Publisher, find_publisher
 class CrawlArticleService:
 
     async def crawl_article(self, news_type: str, url: str) -> ArticleResponse:
-        print(f"news_type: {news_type}, url: {url}")
         news_type = find_publisher(news_type)
 
         # 웹 페이지 가져오기
@@ -26,18 +25,22 @@ class CrawlArticleService:
         result_html = BeautifulSoup(response_text, "html.parser")
         title = self.__find_title(result_html, news_type)
         main_section = self.__find_main_section(result_html, news_type)
+
         paragraphs = [
             para
             for tag in news_type.value.content_tags
-            for para in main_section.find_all(tag, attrs=news_type.value.content_attrs)
+            for para in main_section.find_all(tag, recursive=False)
         ]
 
         content = []
         if news_type == Publisher.MAE_KYUNG:
             for para in paragraphs:
-                if para.get("refid") and para.name == "p":
+                if para.name == "p":
                     text = para.get_text(strip=True)
                     content.append(text)
+                elif para.name == "br":
+                    if para.previous_sibling and isinstance(para.previous_sibling, str):
+                        content.append(para.previous_sibling.strip())
         elif news_type in {Publisher.HAN_KYUNG, Publisher.SEOUL_KYUNG}:
             for para in paragraphs:
                 if para.name == "p":
@@ -58,7 +61,6 @@ class CrawlArticleService:
         ssl_context = ssl.create_default_context()
         ssl_context.check_hostname = False
         ssl_context.verify_mode = ssl.CERT_NONE
-
         async with ClientSession() as session:
             async with session.get(url, ssl=ssl_context) as response:
                 return await response.text()
