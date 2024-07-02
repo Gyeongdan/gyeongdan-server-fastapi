@@ -13,7 +13,7 @@ async def generate_simple_article(url: str, publisher: str, session: AsyncSessio
     ai_client = get_platform_client(LLMModel.GROQ_LLAMA_3)
 
     # 프롬프트
-    system_prompt = await get_system_prompt(version=PromptVersion.V_2024_06_30)
+    system_prompt = await get_system_prompt(version=PromptVersion.V_2024_07_02)
 
     # 크롤링한 기사
     request_text = await CrawlArticleService().crawl_article(
