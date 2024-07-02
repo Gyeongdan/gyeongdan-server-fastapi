@@ -34,8 +34,8 @@ class Publisher(Enum):
     )
     SEOUL_KYUNG = PublisherInfo(
         kr_name="서울경제",
-        title_tag="div",
-        title_class="headline",
+        title_tag="meta",
+        title_class="og:title",
         content_div_class="article",
         content_tags=["p", "br"],
         content_attrs={},
