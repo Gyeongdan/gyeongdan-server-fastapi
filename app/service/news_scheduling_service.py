@@ -5,8 +5,10 @@ import aiohttp
 import feedparser
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config.loguru_config import logger
 from app.database.session import get_db_session
 from app.model.article_publisher import Publisher
+from app.service.article_manage_service import ArticleManageService
 from app.service.simple_article_service import generate_simple_article
 
 
@@ -53,16 +55,23 @@ async def fetch_and_store_all_publisher_feeds():
 
 async def run_crawl_and_store(session: AsyncSession):
     articles = await fetch_and_store_all_publisher_feeds()
-    if articles:
+    exist_articles = await ArticleManageService().get_all_articles(session=session)
+    exist_urls = {article.url for article in exist_articles}
+
+    new_articles = [
+        article for article in articles if article["link"] not in exist_urls
+    ]
+
+    if new_articles:
         tasks = [
             generate_simple_article(
                 publisher=article["publisher"], url=article["link"], session=session
             )
-            for article in articles
+            for article in new_articles
         ]
         await asyncio.gather(*tasks)
     else:
-        print("No articles found.")
+        logger.info("No new articles")
 
 
 async def schedule_task():
@@ -76,3 +85,11 @@ async def schedule_task():
 
         async with get_db_session() as session:  # pylint: disable=not-async-context-manager
             await run_crawl_and_store(session)
+
+
+# async def main():
+#     await schedule_task()
+#
+#
+# if __name__ == "__main__":
+#     asyncio.run(main())
