@@ -48,6 +48,10 @@ class Publisher(Enum):
     def info(self) -> PublisherInfo:
         return self.value
 
+    @classmethod
+    def list_publishers(cls) -> List["Publisher"]:
+        return list(cls)
+
 
 def find_publisher(name: str) -> Publisher:
     for pub in Publisher:
