@@ -10,7 +10,7 @@
   "category": "기사가 어느 카테고리, 즉 enum에 속하는지 (한국어)"
 }
 
-enum Category:
+enum Category:gen
     ECONOMY_AND_BUSINESS = "경제 및 기업"
     POLITICS_AND_SOCIETY = "정치 및 사회"
     TECHNOLOGY_AND_CULTURE = "기술 및 문화"
