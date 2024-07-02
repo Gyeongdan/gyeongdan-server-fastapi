@@ -3,12 +3,14 @@ from datetime import datetime, timedelta
 
 import aiohttp
 import feedparser
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.database.session import get_db_session
 from app.model.article_publisher import Publisher
+from app.service.simple_article_service import generate_simple_article
 
 
-# Helper function to fetch RSS feed and parse articles
-async def fetch_rss_feed(rss_url):
+async def fetch_rss_feed(rss_url, publisher_name):
     async with aiohttp.ClientSession() as session:
         async with session.get(rss_url, ssl=False) as response:
             response.raise_for_status()
@@ -29,13 +31,13 @@ async def fetch_rss_feed(rss_url):
                         "link": link,
                         "published": published,
                         "timestamp": timestamp,
+                        "publisher": publisher_name,
                     }
                 )
 
             return articles
 
 
-# 모든 발행사의 RSS 피드를 가져와서 저장하는 함수
 async def fetch_and_store_all_publisher_feeds():
     publisher_list = Publisher.list_publishers()
     all_articles = []
@@ -43,28 +45,26 @@ async def fetch_and_store_all_publisher_feeds():
     for pub in publisher_list:
         if pub.info.rss is not None:
             rss_url = pub.info.rss
-            articles = await fetch_rss_feed(rss_url)
+            articles = await fetch_rss_feed(rss_url, pub.name)
             all_articles.extend(articles)
 
     return all_articles
 
 
-# 모든 발행사의 RSS 피드를 가져와서 저장하는 함수를 실행하는 함수
-async def run_crawl_and_store():
+async def run_crawl_and_store(session: AsyncSession):
     articles = await fetch_and_store_all_publisher_feeds()
     if articles:
-        for article in articles:
-            link = article.get("link")
-            title = article.get("title")
-
-            print(f"Title: {title}")
-            print(f"Link: {link}")
-
+        tasks = [
+            generate_simple_article(
+                publisher=article["publisher"], url=article["link"], session=session
+            )
+            for article in articles
+        ]
+        await asyncio.gather(*tasks)
     else:
         print("No articles found.")
 
 
-# Scheduling function to run at 9 AM every day
 async def schedule_task():
     while True:
         now = datetime.now()
@@ -73,7 +73,6 @@ async def schedule_task():
             target_time += timedelta(days=1)
         delay = (target_time - now).total_seconds()
         await asyncio.sleep(delay)
-        await run_crawl_and_store()
 
-
-# Main function
+        async with get_db_session() as session:  # pylint: disable=not-async-context-manager
+            await run_crawl_and_store(session)
