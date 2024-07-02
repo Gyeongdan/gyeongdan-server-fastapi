@@ -13,6 +13,7 @@ class PublisherInfo:
     content_div_class: Optional[str] = field(default=None)
     content_tags: Optional[List[str]] = field(default=None)
     content_attrs: Optional[Dict[str, bool]] = field(default=None)
+    rss: Optional[str] = field(default=None)
 
 
 class Publisher(Enum):
@@ -23,6 +24,7 @@ class Publisher(Enum):
         content_div_class="article-body",
         content_tags=["p", "br"],
         content_attrs={},
+        rss="https://www.hankyung.com/feed/all-news",
     )
     MAE_KYUNG = PublisherInfo(
         kr_name="매일경제",
@@ -31,6 +33,7 @@ class Publisher(Enum):
         content_div_class="news_cnt_detail_wrap",
         content_tags=["p"],
         content_attrs={"refid": True},
+        rss="https://www.mk.co.kr/rss/40300001/",
     )
     SEOUL_KYUNG = PublisherInfo(
         kr_name="서울경제",
