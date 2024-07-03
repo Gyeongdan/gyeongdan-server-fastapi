@@ -42,9 +42,6 @@ async def generate_simple_article(url: str, publisher: str, session: AsyncSessio
 
     # JSON 객체인 ai_result를 simplified_article 객체로 변환
     simplified_article = SimplifiedArticle(**ai_result)
-    print("simplified_article: ", simplified_article)
-    print("ai_result[category]", ai_result["category"])
-    print("simplified_article.phrase: ", simplified_article.phrase)
 
     # DB에 저장
     await ArticleManageService().create_article(
