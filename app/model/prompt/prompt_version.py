@@ -7,6 +7,7 @@ from app.utils.async_file_operations import read_file_async
 
 class Role(Enum):
     SIMPLE_ARTICLE = "simple_article"
+    NEWSLETTER_ARTICLE = "newsletter_article"
 
 
 @dataclass
