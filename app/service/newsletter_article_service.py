@@ -13,6 +13,7 @@ from app.model.subscription import MailTypeCategory
 from app.repository.newsletter_article_crud import NewsletterArticleRepository
 
 # 이건 쓸 수도
+from app.utils.json_parser import parse
 
 
 class NewsletterService:
@@ -47,6 +48,18 @@ class NewsletterService:
         )
 
 
+async def translate_category_kr_to_en(category: str):
+    translation_dict = {
+        "경제 및 기업": "ECONOMY_AND_BUSINESS",
+        "정치 및 사회": "POLITICS_AND_SOCIETY",
+        "기술 및 문화": "TECHNOLOGY_AND_CULTURE",
+        "스포츠 및 여가": "SPORTS_AND_LEISURE",
+        "오피니언 및 분석": "OPINION_AND_ANALYSIS",
+    }
+
+    return translation_dict.get(category)
+
+
 async def generate_newsletter_article(session: AsyncSession):
     ai_client = get_platform_client(LLMModel.OPENAI_GPT4o)
 
@@ -55,14 +68,32 @@ async def generate_newsletter_article(session: AsyncSession):
         version=PromptVersion.newsletter_article_2024_07_03
     )
 
-    ai_result = await ai_client.request(
-        request_text="오늘의 뉴스",
-        system_prompt=system_prompt,
-        assistant_prompt=None,
-        model=LLMModel.OPENAI_GPT4o,
+    ai_result = parse(
+        await ai_client.request(
+            request_text="오늘의 뉴스",
+            system_prompt=system_prompt,
+            assistant_prompt=None,
+            model=LLMModel.OPENAI_GPT4o,
+        )
     )
 
-    # commit을 위해 잠시 쓰는 코드
-    if session:
-        print("쓰레기 코드")
-    return ai_result
+    categorized_dict = {}
+
+    for article in ai_result["articles"]:
+        category = article["category"]
+        if category not in categorized_dict:
+            categorized_dict[category] = []
+        content_with_title = article["title"] + "\n" + article["content"]
+        categorized_dict[category].append(content_with_title)
+
+    for category, contents in categorized_dict.items():
+        for content in contents:
+            category_en = await translate_category_kr_to_en(category)
+            await NewsletterArticleRepository().create(
+                article_manager=NewsletterArticle(
+                    category=category_en, content=content
+                ),
+                session=session,
+            )
+
+    return categorized_dict
