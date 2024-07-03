@@ -4,6 +4,7 @@ from app.model.ai_client.ai_client import LLMModel
 from app.model.ai_client.get_platform_client import get_platform_client
 from app.model.article_publisher import find_publisher
 from app.model.prompt.prompt_version import PromptVersion, get_system_prompt
+from app.model.simplified_article import SimplifiedArticle
 from app.model.subscription import MailTypeCategory
 from app.service.article_manage_service import ArticleManageService
 from app.service.crawl_article_service import CrawlArticleService
@@ -41,17 +42,19 @@ async def generate_simple_article(url: str, publisher: str, session: AsyncSessio
     if ai_result.get("category") not in [category.value for category in MailTypeCategory]:
         raise ValueError(f"유효하지 않은 카테고리입니다: {ai_result.get('category')}")
 
+
+    # JSON 객체인 ai_result를 simplified_article 객체로 변환
+    simplified_article = SimplifiedArticle(**ai_result)
+
     # DB에 저장
     await ArticleManageService().create_article(
         url=url,
         publisher=find_publisher(publisher),
         title=request_text.title,
         content=request_text.content,
-        simple_title=ai_result["title"],
-        simple_content=ai_result["content"],
+        simple_title=simplified_article.title,
+        simple_content=simplified_article.content,
         session=session,
     )
-
-    # JSON 객체인 ai_result를 simplified_article 객체로 변환
 
     return ai_result
