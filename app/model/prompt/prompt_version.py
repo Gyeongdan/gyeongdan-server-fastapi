@@ -20,6 +20,11 @@ class PromptVersion(Enum):
     V_2024_06_30 = PromptInfo(version="2024-06-30", role=Role.SIMPLE_ARTICLE)
     V_2024_07_02 = PromptInfo(version="2024-07-02", role=Role.SIMPLE_ARTICLE)
 
+    # newsletter article
+    newsletter_article_2024_07_03 = PromptInfo(
+        version="2024-07-03", role=Role.NEWSLETTER_ARTICLE
+    )
+
     def get_system_prompt_path(self):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         return os.path.join(
