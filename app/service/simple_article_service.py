@@ -54,7 +54,7 @@ async def generate_simple_article(url: str, publisher: str, session: AsyncSessio
         content=request_text.content,
         simple_title=simplified_article.title,
         simple_content=simplified_article.content,
-        #phrase=simplified_article.phrase,
+        phrase=simplified_article.phrase,
         comment=simplified_article.comment,
         category=MailTypeCategory(ai_result["category"]),
         session=session,

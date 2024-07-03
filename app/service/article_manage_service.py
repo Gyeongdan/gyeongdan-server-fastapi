@@ -14,7 +14,7 @@ class ArticleManageService:
         content: str,
         simple_title: str,
         simple_content: str,
-        #phrase: dict,
+        phrase: dict,
         comment: str,
         category: MailTypeCategory,
         session: AsyncSession,
@@ -29,7 +29,7 @@ class ArticleManageService:
                 simple_content=simple_content,
                 comment=comment,
                 category=category.name,
-                #phrase=phrase,
+                phrase=phrase,
             ),
             session=session,
         )

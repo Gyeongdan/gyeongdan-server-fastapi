@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import CHAR, BigInteger, Column, DateTime, String, Text, JSON, Enum, event
+from sqlalchemy.dialects.postgresql import JSONB
 
 from app.database.repository import Base
 
@@ -16,7 +17,7 @@ class Articles(Base):
     simple_content = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.now, nullable=False)
     updated_at = Column(DateTime, default=datetime.now, nullable=False)
-    #phrase = Column(JSON, nullable=True)
+    phrase = Column(JSONB, nullable=True)
     comment = Column(Text, nullable=True)
     category = Column(CHAR(255), nullable=True)
 
