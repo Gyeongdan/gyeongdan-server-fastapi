@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,10 +18,8 @@ async def generate_simple_article_(
     request: GenerateSimpleArticleRequestDTO,
     session: AsyncSession = Depends(get_db_session),
 ):
-    try:
-        simple_article = await generate_simple_article(
-            publisher=request.news_publisher, url=request.news_url, session=session
-        )
-        return GenericResponseDTO(result=True, data=simple_article, message="Article generated successfully.")
-    except Exception as e:
-        return GenericResponseDTO(result=False, data=None, message=str(e))
+    simple_article = await generate_simple_article(
+        publisher=request.news_publisher, url=request.news_url, session=session
+    )
+
+    return GenericResponseDTO(result=True, data=simple_article, message="Article generated successfully.")
