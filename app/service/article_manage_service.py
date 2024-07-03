@@ -1,11 +1,8 @@
 from typing import List
-
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.model.article_publisher import Publisher
-from app.model.crawled_article import Articles
+from app.model.crawled_article import Articles, CategoryEnum
 from app.repository.crawled_article_crud import CrawledArticleRepository
-
 
 class ArticleManageService:
     async def create_article(
@@ -16,6 +13,9 @@ class ArticleManageService:
         content: str,
         simple_title: str,
         simple_content: str,
+        phrase: dict,
+        comment: str,
+        category: CategoryEnum,
         session: AsyncSession,
     ) -> Articles:
         return await CrawledArticleRepository().create(
@@ -26,6 +26,9 @@ class ArticleManageService:
                 publisher=publisher.name,
                 simple_title=simple_title,
                 simple_content=simple_content,
+                phrase=phrase,
+                comment=comment,
+                category=category,
             ),
             session=session,
         )
