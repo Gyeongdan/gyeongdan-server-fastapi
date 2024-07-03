@@ -17,6 +17,8 @@ groq = "*"
 openai = "*"
 aiohttp = "*"
 aiosmtplib = "*"
+schedule = "*"
+feedparser = "*"
 
 [dev-packages]
 flake8 = "*"

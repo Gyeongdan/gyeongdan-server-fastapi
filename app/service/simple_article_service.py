@@ -10,7 +10,7 @@ from app.utils.json_parser import parse
 
 
 async def generate_simple_article(url: str, publisher: str, session: AsyncSession):
-    ai_client = get_platform_client(LLMModel.GROQ_LLAMA_3)
+    ai_client = get_platform_client(LLMModel.OPENAI_GPT4o)
 
     # 프롬프트
     system_prompt = await get_system_prompt(version=PromptVersion.V_2024_07_02)
@@ -26,7 +26,7 @@ async def generate_simple_article(url: str, publisher: str, session: AsyncSessio
             request_text=request_text.content,
             system_prompt=system_prompt,
             assistant_prompt=None,
-            model=LLMModel.GROQ_LLAMA_3,
+            model=LLMModel.OPENAI_GPT4o,
         )
     )
 
