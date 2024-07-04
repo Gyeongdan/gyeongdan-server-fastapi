@@ -47,6 +47,16 @@ class NewsletterService:
             id=id, category=category, content=content, session=session
         )
 
+    async def get_id_by_content(self, content: str, session: AsyncSession) -> int:
+        return await NewsletterArticleRepository().get_id_by_content(
+            content=content, session=session
+        )
+
+    async def update_email(self, id: int, email: str, session: AsyncSession):
+        return await NewsletterArticleRepository().update_email(
+            id=id, email=email, session=session
+        )
+
 
 async def translate_category_kr_to_en(category: str):
     translation_dict = {

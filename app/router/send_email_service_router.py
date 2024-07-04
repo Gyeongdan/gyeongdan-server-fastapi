@@ -49,8 +49,15 @@ async def send_email(
         >= (time_now - timedelta(hours=TimeDelta.RECENT_HOURS.value))
     ]
 
-    # 기사를 카테고리 별로 보낼 때, 하나의 주제는 하나의 메일로 보내는 것이 좋을 듯 하여 이런 코드를 짰습니다!
+    # email 누가 받았는 지 체크
+    for article in letter_list:
+        repository = await NewsletterService().get_id_by_content(article, session)
+        for email in email_list:
+            await NewsletterService().update_email(repository, email, session)
+
     news_article_zip = "\n\n".join(letter_list)
 
+    # user들 한테 email 보내는 것!
+    # return 은 바뀌어도 됩니다!
     await sender.send_email_to_users(category.value, news_article_zip, email_list)
     return letter_list
