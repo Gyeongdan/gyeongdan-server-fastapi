@@ -1,5 +1,3 @@
-import os
-
 from dotenv import load_dotenv
 
 from app.model.ai_client.ai_client import LLMModel
@@ -16,9 +14,7 @@ class PublicDataArticleService:
 
         system_prompt = await get_system_prompt(version=PromptVersion.V_2024_07_05)
 
-        request_text = await PublicDataAPIService(
-            os.getenv("PUBLIC_DATA_API_KEY")
-        ).response(publicDataApi.value)
+        request_text = await PublicDataAPIService().response(publicDataApi.value)
 
         result = await ai_client.request(
             request_text=request_text,

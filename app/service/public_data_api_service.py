@@ -1,3 +1,4 @@
+import os
 from enum import Enum
 from typing import List
 
@@ -25,8 +26,8 @@ class PublicDataAPI(Enum):
 
 
 class PublicDataAPIService:
-    def __init__(self, api_key: str):
-        self.api_key = api_key
+    def __init__(self):
+        self.api_key = os.getenv("PUBLIC_DATA_API_KEY")
 
     async def response(self, publicDataApi: PublicDataAPIInfo):
         url = publicDataApi.url + "?" + "serviceKey=" + self.api_key
