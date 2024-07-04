@@ -19,6 +19,8 @@ aiohttp = "*"
 aiosmtplib = "*"
 schedule = "*"
 feedparser = "*"
+pandas = "*"
+matplotlib = "*"
 
 [dev-packages]
 flake8 = "*"
