@@ -10,7 +10,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.session import get_db_session
 from app.model.newsletter_article import NewsletterArticle
 from app.model.subscription import MailTypeCategory
-from app.service.newsletter_article_service import NewsletterService
+from app.service.newsletter_article_service import (
+    NewsletterService,
+    generate_newsletter_article,
+)
 from app.utils.generic_response import GenericResponseDTO
 
 newsletter_article_router = APIRouter()
@@ -106,3 +109,9 @@ async def update_content_by_id(
     return GenericResponseDTO[int](
         data=newsletter_article.id, message="Successfully Done", result=True
     )
+
+
+@newsletter_article_router.post("/newsletter_article/test")
+async def ai_client_test(session: AsyncSession = Depends(get_db_session)):
+    newsletter_article = await generate_newsletter_article(session)
+    return newsletter_article
