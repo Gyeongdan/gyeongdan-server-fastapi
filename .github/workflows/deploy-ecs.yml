@@ -13,7 +13,7 @@ env:
   ECR_REPOSITORY: gyeongdan-fastapi               # Amazon ECR repository 이름
   ECS_SERVICE: GyeongdanFastAPI                   # Amazon ECS 서비스 이름
   ECS_CLUSTER: gyeongdan                          # Amazon ECS 클러스터 이름
-  ECS_TASK_DEFINITION: tf-gyeongdan-fastapi.json  # Amazon ECS task definition 파일 경로
+  ECS_TASK_DEFINITION: tf-staging.json  # Amazon ECS task definition 파일 경로
   CONTAINER_NAME: FastAPI                         # 컨테이너 이름
   PROGRESS_SLACK_CHANNEL: C07BRCDNBMF             # Slack 채널 ID
 
@@ -141,7 +141,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": ":pepe_cheer: *Gyeongdan FastAPI ${{ github.ref_name }}* 배포가 성공했습니다."
+                    "text": "*Gyeongdan FastAPI ${{ github.ref_name }}* 배포가 성공했습니다."
                   }
                 },
                 {
