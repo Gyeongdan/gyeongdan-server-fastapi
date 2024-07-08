@@ -2,8 +2,7 @@
 
 from datetime import datetime
 
-from sqlalchemy import CHAR, BigInteger, Column, DateTime, Text
-
+from sqlalchemy import ARRAY, CHAR, BigInteger, Column, DateTime, String, Text
 
 # Instead of "from sqlalchemy.ext.declarative import declarative_base"
 from app.database.repository import Base
@@ -21,3 +20,4 @@ class NewsletterArticle(Base):
     updated_at = Column(
         DateTime, default=datetime.now, nullable=False
     )  # 기사를 언제 받아왔는 지
+    email_addresses = Column(ARRAY(String), nullable=True)
