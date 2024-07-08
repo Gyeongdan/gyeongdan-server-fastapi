@@ -26,8 +26,8 @@
             }
         }
     ],
-    "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskExecutionRole",
-    "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskExecutionRole",
+    "taskRoleArn": "arn:aws:iam::730335311420:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws:iam::730335311420:role/ecsTaskExecutionRole",
     "networkMode": "bridge",
     "requiresCompatibilities": [
         "EC2"
