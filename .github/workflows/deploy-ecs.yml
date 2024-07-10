@@ -141,7 +141,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Gyeongdan FastAPI ${{ github.ref_name }}* 배포가 성공했습니다."
+                    "text": ":pedro: *Gyeongdan FastAPI ${{ github.ref_name }}* 배포가 성공했습니다."
                   }
                 },
                 {
@@ -179,7 +179,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": ":pepe_rainy: *Gyeongdan FastAPI ${{ github.ref_name }}* 배포가 실패했습니다."
+                    "text": ":typingcat: *Gyeongdan FastAPI ${{ github.ref_name }}* 배포가 실패했습니다."
                   }
                 },
                 {
