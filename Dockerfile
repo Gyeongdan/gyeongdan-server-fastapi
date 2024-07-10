@@ -18,9 +18,4 @@ ENV PORT=8000
 
 RUN chmod +x ./entrypoint.sh
 
-COPY .env .env
-
-RUN export $(grep -v '^#' .env | xargs)
-
-
 ENTRYPOINT ["/bin/sh", "-c", "./entrypoint.sh"]
