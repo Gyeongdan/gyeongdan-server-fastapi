@@ -12,7 +12,7 @@ from app.config.loguru_config import logger
 Base = declarative_base()
 
 load_dotenv()
-DB_HOST = os.getenv("DATABASE_HOST", "localhost")
+DB_HOST = os.getenv("DB_HOST", "localhost")
 DB_USER = os.getenv("DB_USER", "postgres")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "password")
 DB_NAME = os.getenv("DB_NAME", "gyeongdan")
