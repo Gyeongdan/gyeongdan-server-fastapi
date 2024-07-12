@@ -188,14 +188,21 @@ class RecommendService:
         return self.article_datas.iloc[best]
 
     def get_classification_for_article(self, article_id:id):
-        # 특정 아이템에 대한 모든 사용자 예측 점수 계산
         scores = self.model.predict(np.arange(len(self.user_datas)), np.full(len(self.user_datas), article_id))
+        top_users = np.argsort(-scores)
 
-        # 예측 점수가 높은 사용자들 선택
-        top_users = np.argsort(-scores)  # 내림차순 정렬
+        score_for_classification = [0 for _ in range(5)]
+        weight = 10
+        for user_id in top_users[:10]:
+            for i in range(5):
+                score_for_classification[i] += self.user_datas.iloc[user_id][self.user_datas.columns[i+2]] * (2 ** weight)
+            weight -= 1
 
+        total = sum(score_for_classification)
+        for i in range(5):
+            score_for_classification[i] = (int)( score_for_classification[i] / (total /100))
 
-        return top_users
+        return score_for_classification
 
     def get_time_weight(self, article_id):
         today = datetime.now().date()
