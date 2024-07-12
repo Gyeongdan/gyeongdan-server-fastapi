@@ -8,9 +8,12 @@ import numpy as np
 import pandas as pd
 from fastapi import Depends
 
+from app.database.repository import model_to_dict
 from app.database.session import get_db_session
 from app.model.crawled_article import Articles
 from app.service.article_manage_service import ArticleManageService
+from app.repository.interaction_crud import InteractionRepository
+from app.model.interaction import Interaction
 from lightfm import LightFM
 from lightfm.data import Dataset  # pylint: disable=E0611
 
@@ -23,15 +26,25 @@ def articles_to_dataframe(articles: list[Articles]) -> pd.DataFrame:
         {
             "article_id": article.id,
             article.category: 1,
-            "created_at": article.created_at,
+            # "created_at": article.created_at.strftime('%Y-%m-%d'),
         }
         for article in articles
     ]
 
-    # pandas DataFrame 생성
     df = pd.DataFrame(articles_dict_list)
     return df
 
+def interaction_to_dataframe(interactions : list[Interaction]) -> pd.DataFrame:
+    interaction_dict_list = [
+        {
+            "classification_id": interaction.classification_id,
+            "article_id": interaction.article_id,
+            "duration_time": interaction.duration_time
+        }
+        for interaction in interactions
+    ]
+    df = pd.DataFrame(interaction_dict_list)
+    return df
 
 class ArticleDataInfo:
     def __init__(self, article_id, category, created_at):
@@ -43,7 +56,7 @@ class ArticleDataInfo:
                 "기술 및 문화": [0],
                 "스포츠 및 여가": [0],
                 "오피니언 및 분석": [0],
-                "created at": [created_at],
+                # "created_at": [created_at],
             }
         )
         self.article_data.iloc[0][category] = 1
@@ -53,7 +66,7 @@ class InteractionDataInfo:
     def __init__(self, user_id, article_id, duration_time):
         self.interaction_data = pd.DataFrame(
             {
-                "user_id": [user_id],
+                "classification_id": [user_id],
                 "article_id": [article_id],
                 "duration_time": [duration_time],
             }
@@ -62,23 +75,29 @@ class InteractionDataInfo:
 
 class RecommendService:
     # pylint: disable=too-many-instance-attributes
+
     def __init__(self):
-        self.set_user_datas("user_classification.csv")
-        asyncio.run(self.set_article_datas())
-        self.set_interaction_datas("data/interaction_data.csv")
+        self.interaction_datas = None
 
     def set_user_datas(self, user_data_path):
         self.user_data_path = user_data_path
         self.user_datas = pd.read_csv(user_data_path)
 
-    async def set_article_datas(self):
-        session = Depends(get_db_session)
+    async def initialize_data(self, session):
+        self.set_user_datas("app/recommend/user_classification.csv")
+        await self.set_article_datas(session)
+        await self.set_interaction_datas(session)
+
+    async def set_article_datas(self, session):
+        # session = Depends(get_db_session)
         articles = await ArticleManageService().get_all_articles(session=session)
         self.article_datas = pd.get_dummies(articles_to_dataframe(articles))
 
-    def set_interaction_datas(self, interaction_data_path):
-        self.interaction_data_path = interaction_data_path
-        self.interaction_datas = pd.read_csv(interaction_data_path)
+    async def set_interaction_datas(self, session):
+        # session = Depends(get_db_session)
+        interactions = await InteractionRepository().get_all(session=session)
+        self.interaction_datas = interaction_to_dataframe(interactions)
+        print(self.interaction_datas.columns)
 
     def make_dataset(self):
         self.user_datas = pd.get_dummies(self.user_datas)
@@ -91,10 +110,10 @@ class RecommendService:
 
         self.item_features = self.article_datas
         self.item_features_col = self.item_features.drop(
-            columns=["article_id", "created at"]
+            columns=["article_id"]
         ).columns.values
         self.item_feat = self.item_features.drop(
-            columns=["article_id", "created at"]
+            columns=["article_id"]
         ).to_dict(orient="records")
 
         self.dataset = Dataset()
@@ -113,7 +132,7 @@ class RecommendService:
         )
 
         (self.interactions, self.weights) = self.dataset.build_interactions(
-            (x, y, z * self.get_time_weight(y))
+            (x, y, z)
             for x, y, z in zip(
                 self.interaction_datas["classification_id"],
                 self.interaction_datas["article_id"],
@@ -168,11 +187,21 @@ class RecommendService:
 
         return self.article_datas.iloc[best]
 
+    def get_classification_for_article(self, article_id:id):
+        # 특정 아이템에 대한 모든 사용자 예측 점수 계산
+        scores = self.model.predict(np.arange(len(self.user_datas)), np.full(len(self.user_datas), article_id))
+
+        # 예측 점수가 높은 사용자들 선택
+        top_users = np.argsort(-scores)  # 내림차순 정렬
+
+
+        return top_users
+
     def get_time_weight(self, article_id):
         today = datetime.now().date()
         date_obj = datetime.strptime(
             self.article_datas[self.article_datas["article_id"] == article_id][
-                "created at"
+                "created_at"
             ].iloc[0],
             "%Y-%m-%d",
         ).date()
@@ -184,16 +213,10 @@ class RecommendService:
         self.model.fit_partial(self.interactions, item_features=self.item_features)
 
     def add_interaction_data(self, interaction_data: InteractionDataInfo):
-        df = pd.read_csv(self.interaction_data_path)
-        df = pd.concat([df, interaction_data.interaction_data])
-        df.to_csv(self.interaction_data_path, index=False)
-        print("interaction is added")
-
-
-def main():
-    recommendService = RecommendService()
-    recommendService.fit_model()
-    user_id = 1
-    print(recommendService.get_top_n_articles(user_id, 5))
-
-    return "goof"
+        InteractionRepository().create(
+            Interaction(
+                classification_id=interaction_data.interaction_data['classification_id'],
+                article_id=interaction_data.interaction_data['article_id'],
+                duration_time=interaction_data.interaction_data['duration_time']
+            )
+        )
