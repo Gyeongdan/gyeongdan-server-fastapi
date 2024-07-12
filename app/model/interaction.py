@@ -9,7 +9,8 @@ from app.database.repository import Base
 class Interaction(Base):
     __tablename__ = "interactions"
 
-    classification_id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
-    article_id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
+    id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
+    classification_id = Column(BigInteger)
+    article_id = Column(BigInteger)
     duration_time = Column(Integer)
 
