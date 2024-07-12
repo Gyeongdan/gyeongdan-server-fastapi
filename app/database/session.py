@@ -1,5 +1,6 @@
 import os
 from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 from fastapi import HTTPException
@@ -25,7 +26,8 @@ DB_CONFIG = (
 engine = create_async_engine(DB_CONFIG)
 
 
-async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
+@asynccontextmanager
+async def db_session() -> AsyncGenerator[AsyncSession, None]:
     factory = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     async with factory() as session:
@@ -44,3 +46,8 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
             ) from error  # pylint: disable=line-too-long
         finally:
             await session.close()
+
+
+async def get_db_session() -> AsyncSession:
+    async with db_session() as session:
+        yield session
