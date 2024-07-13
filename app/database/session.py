@@ -1,6 +1,8 @@
 import os
 from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 
+from dotenv import load_dotenv
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -10,16 +12,22 @@ from app.config.loguru_config import logger
 
 Base = declarative_base()
 
-DB_USER = os.getenv("DATABASE_USERNAME", "postgres")
+load_dotenv()
+DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_USER = os.getenv("DB_USER", "postgres")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "password")
 DB_NAME = os.getenv("DB_NAME", "gyeongdan")
-# DB_CONFIG = f"mysql+aiomysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-DB_CONFIG = "postgresql+asyncpg://localhost:5432/gyeongdan"
+DB_PORT = os.getenv("DB_PORT", "5432")
+DB_CONFIG = (
+    f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+)
+# DB_CONFIG = "postgresql+asyncpg://localhost:5432/gyeongdan"
 
 engine = create_async_engine(DB_CONFIG)
 
 
-async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
+@asynccontextmanager
+async def db_session() -> AsyncGenerator[AsyncSession, None]:
     factory = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     async with factory() as session:
@@ -38,3 +46,8 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
             ) from error  # pylint: disable=line-too-long
         finally:
             await session.close()
+
+
+async def get_db_session() -> AsyncSession:
+    async with db_session() as session:
+        yield session

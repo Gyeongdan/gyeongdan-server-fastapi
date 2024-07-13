@@ -1,12 +1,14 @@
 from datetime import datetime
 
-from sqlalchemy import CHAR, BigInteger, Column, DateTime, String, Text, JSON, Enum, event, Integer
+from sqlalchemy import CHAR, BigInteger, Column, DateTime, String, Text, event, Integer
 from sqlalchemy.dialects.postgresql import JSONB
 
 from app.database.repository import Base
 
+
 class Articles(Base):
     __tablename__ = "articles"
+    __table_args__ = {"schema": "gyeongdan"}
 
     id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
     url = Column(String, nullable=False)
@@ -25,6 +27,7 @@ class Articles(Base):
     probability_entertainer = Column(Integer, nullable=True)
     probability_tech_specialist = Column(Integer, nullable=True)
     probability_professionals = Column(Integer, nullable=True)
+
 
 @event.listens_for(Articles, "before_update", propagate=True)
 def update_timestamp(mapper, connection, target):  # pylint: disable=unused-argument
