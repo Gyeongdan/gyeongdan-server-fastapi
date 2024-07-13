@@ -28,11 +28,11 @@ class CrawledArticleRepository:
         return await repository.update_by_pk(
             pk = pk,
             data = {
-                'interest_type_issue_finder': interest_types[0],
-                'interest_type_lifestyle_consumer': interest_types[1],
-                'interest_type_entertainer': interest_types[2],
-                'interest_type_tech_specialist': interest_types[3],
-                'interest_type_professionals': interest_types[4]
+                'probability_issue_finder': interest_types[0],
+                'probability_lifestyle_consumer': interest_types[1],
+                'probability_entertainer': interest_types[2],
+                'probability_tech_specialist': interest_types[3],
+                'probability_professionals': interest_types[4]
             }
 
         )
