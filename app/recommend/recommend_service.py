@@ -7,10 +7,12 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.repository import model_to_dict
 from app.database.session import get_db_session
 from app.model.crawled_article import Articles
+from app.repository.crawled_article_crud import CrawledArticleRepository
 from app.service.article_manage_service import ArticleManageService
 from app.repository.interaction_crud import InteractionRepository
 from app.model.interaction import Interaction
@@ -187,7 +189,7 @@ class RecommendService:
 
         return self.article_datas.iloc[best]
 
-    def get_classification_for_article(self, article_id:id):
+    async def get_classification_for_article(self, article_id:id, session:AsyncSession):
         scores = self.model.predict(np.arange(len(self.user_datas)), np.full(len(self.user_datas), article_id))
         top_users = np.argsort(-scores)
 
@@ -200,7 +202,9 @@ class RecommendService:
 
         total = sum(score_for_classification)
         for i in range(5):
-            score_for_classification[i] = (int)( score_for_classification[i] / (total /100))
+            score_for_classification[i] = (int)(score_for_classification[i] / (total/100))
+
+        await CrawledArticleRepository().set_interest_type(article_id, score_for_classification, session)
 
         return score_for_classification
 
