@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import CHAR, BigInteger, Column, DateTime, String, Text, event
+from sqlalchemy import CHAR, BigInteger, Column, DateTime, String, Text, event, Integer
 from sqlalchemy.dialects.postgresql import JSONB
 
 from app.database.repository import Base
@@ -22,6 +22,11 @@ class Articles(Base):
     phrase = Column(JSONB, nullable=True)
     comment = Column(Text, nullable=True)
     category = Column(CHAR(255), nullable=True)
+    interest_type_issue_finder = Column(Integer, nullable=True)
+    interest_type_lifestyle_consumer = Column(Integer, nullable=True)
+    interest_type_entertainer = Column(Integer, nullable=True)
+    interest_type_tech_specialist = Column(Integer, nullable=True)
+    interest_type_professionals = Column(Integer, nullable=True)
 
 
 @event.listens_for(Articles, "before_update", propagate=True)
