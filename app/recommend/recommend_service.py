@@ -80,6 +80,7 @@ class RecommendService:
 
     def __init__(self):
         self.interaction_datas = None
+        self.num_classification = 5
 
     def set_user_datas(self, user_data_path):
         self.user_data_path = user_data_path
@@ -193,15 +194,15 @@ class RecommendService:
         scores = self.model.predict(np.arange(len(self.user_datas)), np.full(len(self.user_datas), article_id))
         top_users = np.argsort(-scores)
 
-        score_for_classification = [0 for _ in range(5)]
+        score_for_classification = [0 for _ in range(self.num_classification)]
         weight = 10
         for user_id in top_users[:10]:
-            for i in range(5):
+            for i in range(self.num_classification):
                 score_for_classification[i] += self.user_datas.iloc[user_id][self.user_datas.columns[i+2]] * (2 ** weight)
             weight -= 1
 
         total = sum(score_for_classification)
-        for i in range(5):
+        for i in range(self.num_classification):
             score_for_classification[i] = (int)(score_for_classification[i] / (total/100))
 
         await CrawledArticleRepository().set_interest_type(article_id, score_for_classification, session)
