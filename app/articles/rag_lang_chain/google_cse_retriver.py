@@ -1,63 +1,54 @@
-import asyncio
 import os
 from typing import List
 
-import httpx
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 
+# .env 파일에서 환경 변수 로드
 load_dotenv()
 
 
 class GoogleCSERetriever:
-    def __init__(self, api_key: str, engine_id: str):
-        self.api_key = api_key
+    def __init__(self, service, engine_id):
+        self.service = service
         self.engine_id = engine_id
 
-    async def retrieve(self, query: str) -> List[dict]:
-        url = "https://www.googleapis.com/customsearch/v1"
-        params = {
-            "key": self.api_key,
-            "cx": self.engine_id,
-            "q": query,
-        }
-
-        async with httpx.AsyncClient() as client:
-            try:
-                response = await client.get(url, params=params)
-                response.raise_for_status()
-                results = response.json().get("items", [])
-                return [
-                    {
-                        "title": item["title"],
-                        "snippet": item["snippet"],
-                        "link": item["link"],
-                    }
-                    for item in results
-                ]
-            except httpx.HTTPStatusError as e:
-                print(f"An error occurred: {e}")
-                return []
+    def retrieve(self, query: str) -> List[dict]:
+        try:
+            results = self.service.cse().list(q=query, cx=self.engine_id).execute()
+            items = results.get("items", [])
+            return [
+                {
+                    "title": item["title"],
+                    "snippet": item["snippet"],
+                    "link": item["link"],
+                }
+                for item in items
+            ]
+        except HttpError as e:
+            print(f"An error occurred: {e}")
+            return []
 
 
 # 환경 변수에서 API 키와 엔진 ID 불러오기
 google_cse_api_key = os.getenv("GOOGLE_CSE_API_KEY")
 google_cse_engine_id = os.getenv("GOOGLE_CSE_ENGINE_ID")
 
+# Google Custom Search API 클라이언트 초기화
+google_cse_service = build("customsearch", "v1", developerKey=google_cse_api_key)
+
 # Google CSE Retriever 초기화
 google_cse_retriever = GoogleCSERetriever(
-    api_key=google_cse_api_key, engine_id=google_cse_engine_id
+    service=google_cse_service, engine_id=google_cse_engine_id
 )
 
-# FastAPI 애플리케이션 설정
-app = FastAPI()
 
-
-async def search(query: str):
-    results = await google_cse_retriever.retrieve(query)
+def main():
+    query = "국내총생산은 무엇인가?"
+    results = google_cse_retriever.retrieve(query)
     print(results)
-    return {"results": results}
 
 
 if __name__ == "__main__":
-    asyncio.run(search("마라탕"))
+    main()
