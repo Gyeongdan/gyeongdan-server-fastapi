@@ -10,8 +10,8 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 # 환경 변수 로드
 load_dotenv()
 
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
+GOOGLE_API_KEY = os.getenv("GOOGLE_CSE_API_KEY")
+GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ENGINE_ID")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 USER_AGENT = os.getenv("USER_AGENT", "gyeongdanproject")
 
@@ -22,7 +22,7 @@ vectorstore = Chroma(
 )
 
 # LLM 설정
-search_llm = ChatOpenAI(openai_api_key=OPENAI_API_KEY, temperature=0)
+search_llm = ChatOpenAI(openai_api_key=OPENAI_API_KEY, temperature=0, model="gpt-4")
 
 # Google 검색 API 래퍼 설정
 search = GoogleSearchAPIWrapper(
@@ -53,7 +53,7 @@ def perform_search(query):
 
 
 def main():
-    user_input = "저금리대출이 뭐야?"
+    user_input = "국내총생산량이 뭐야?"
     result = perform_search(user_input)
     if result:
         print(result)
