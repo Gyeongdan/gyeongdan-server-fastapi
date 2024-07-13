@@ -35,7 +35,7 @@ class GoogleCSERetriever:
 
 
 # 환경 변수에서 API 키와 엔진 ID 불러오기
-google_cse_api_key = os.getenv("GOOGLE_CSE_API_KEY")
+google_cse_api_key = os.getenv("GOOGLE_API_KEY")
 google_cse_engine_id = os.getenv("GOOGLE_CSE_ENGINE_ID")
 
 # Google Custom Search API 클라이언트 초기화
@@ -47,8 +47,7 @@ google_cse_retriever = GoogleCSERetriever(
 )
 
 
-def main():
-    query = "국내총생산은 무엇인가?"
+def get_related_reference(query: str):
     google_results = google_cse_retriever.retrieve(query)
     if not google_results:
         raise HTTPException(status_code=404, detail="No results found from Google.")
@@ -64,4 +63,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    get_related_reference(query="국내총생산은 무엇인가?")
