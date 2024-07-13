@@ -83,7 +83,7 @@ async def run_crawl_and_store(session: AsyncSession):
 
     # 새로운 기사들만 필터링
     new_articles_id = [
-        article.id for article in new_exist_articles if article.probability_issue_finder is None
+        article.id for article in new_exist_articles if article.probability_issue_finder == -1
     ]
     recommend_service = RecommendService()
     recommend_service.fit_model()
