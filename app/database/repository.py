@@ -1,12 +1,10 @@
 from typing import Any, Callable, Generic, Sequence, TypeVar
 
-from fastapi import Depends, HTTPException
+from fastapi import HTTPException
 from sqlalchemy import BinaryExpression, Row, RowMapping, desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import class_mapper
-
-from app.database.session import get_db_session
 
 Base = declarative_base()
 Model = TypeVar("Model", bound=Base)
@@ -118,7 +116,7 @@ class DatabaseRepository(Generic[Model]):
 def get_repository(
     model: type[Base],
 ) -> Callable[[AsyncSession], DatabaseRepository[Base]]:
-    def func(session: AsyncSession = Depends(get_db_session)):
+    def func(session: AsyncSession):
         if session is None:
             raise HTTPException(status_code=500, detail="DB Connection Error")
         return DatabaseRepository(model, session)

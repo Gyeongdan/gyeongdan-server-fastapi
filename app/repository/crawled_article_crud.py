@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,6 +20,22 @@ class CrawledArticleRepository:
                 status_code=404, detail="해당 article이 존재하지 않습니다."
             )
         return article
+
+    async def set_interest_type(
+            self, pk:int, interest_types : List[int], session: AsyncSession
+    ):
+        repository = get_repository(Articles)(session)
+        return await repository.update_by_pk(
+            pk = pk,
+            data = {
+                'probability_issue_finder': interest_types[0],
+                'probability_lifestyle_consumer': interest_types[1],
+                'probability_entertainer': interest_types[2],
+                'probability_tech_specialist': interest_types[3],
+                'probability_professionals': interest_types[4]
+            }
+
+        )
 
     async def get_all(self, session: AsyncSession):
         repository = get_repository(Articles)(session)
