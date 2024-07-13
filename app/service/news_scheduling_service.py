@@ -6,11 +6,11 @@ import feedparser
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.loguru_config import logger
-from app.database.session import get_db_session
+from app.database.session import db_session
 from app.model.article_publisher import Publisher
 from app.service.article_manage_service import ArticleManageService
 from app.service.simple_article_service import generate_simple_article
-
+from app.recommend.recommend_service import RecommendService
 
 async def fetch_rss_feed(rss_url, publisher_name):
     async with aiohttp.ClientSession() as session:
@@ -55,9 +55,14 @@ async def fetch_and_store_all_publisher_feeds():
 
 async def run_crawl_and_store(session: AsyncSession):
     articles = await fetch_and_store_all_publisher_feeds()
+
+    # 기존에 저장된 기사들을 가져옴
     exist_articles = await ArticleManageService().get_all_articles(session=session)
+
+    # 기존에 저장된 기사들의 URL을 가져옴
     exist_urls = {article.url for article in exist_articles}
 
+    # 새로운 기사들만 필터링
     new_articles = [
         article for article in articles if article["link"] not in exist_urls
     ]
@@ -69,10 +74,25 @@ async def run_crawl_and_store(session: AsyncSession):
             )
             for article in new_articles
         ]
-        await asyncio.gather(*tasks)
+        await asyncio.gather(*tasks, return_exceptions=True)
     else:
         logger.info("No new articles")
 
+
+    new_exist_articles = await ArticleManageService().get_all_articles(session=session)
+
+    # 새로운 기사들만 필터링
+    new_articles_id = [
+        article.id for article in new_exist_articles if article.probability_issue_finder == -1
+    ]
+    recommend_service = RecommendService()
+    recommend_service.fit_model()
+    if new_articles:
+        for article_id in new_articles_id:
+            await recommend_service.get_classification_for_article(
+                article_id=article_id,
+                session=session
+            )
 
 async def schedule_task():
     while True:
@@ -83,7 +103,7 @@ async def schedule_task():
         delay = (target_time - now).total_seconds()
         await asyncio.sleep(delay)
 
-        async with get_db_session() as session:  # pylint: disable=not-async-context-manager
+        async with db_session() as session:
             await run_crawl_and_store(session)
 
 
