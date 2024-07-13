@@ -2,6 +2,7 @@
 
 
 import datetime
+from typing import List
 
 from fastapi import HTTPException
 from sqlalchemy import select
@@ -48,4 +49,27 @@ class NewsletterArticleRepository:
                 "content": content,
                 "updated_at": now_time,
             },
+        )
+
+    async def get_id_by_content(self, content: str, session: AsyncSession):
+        repository = get_repository(NewsletterArticle)(session)
+        repository = await repository.filter(NewsletterArticle.content == content)
+        return repository[0].id
+
+    async def update_email(self, id: int, email: str, session: AsyncSession):
+        repository = get_repository(NewsletterArticle)(session)
+        existing_record = await repository.get(pk=id)
+        if existing_record is None:
+            raise HTTPException(
+                status_code=404, detail="해당 순번이 존재하지 않습니다."
+            )
+
+        existing_emails: List[str] = existing_record.email_addresses
+
+        if existing_emails is None:
+            updated_emails = [email]
+        else:
+            updated_emails = existing_emails + [email]
+        return await repository.update_by_pk(
+            pk=id, data={"email_addresses": updated_emails}
         )
