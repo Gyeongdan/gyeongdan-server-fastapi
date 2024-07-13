@@ -1,9 +1,12 @@
 import os
+from http.client import HTTPException
 from typing import List
 
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+
+from app.articles.rag_lang_chain.chromadb_manager import ChromaDBManager
 
 # .env 파일에서 환경 변수 로드
 load_dotenv()
@@ -46,8 +49,18 @@ google_cse_retriever = GoogleCSERetriever(
 
 def main():
     query = "국내총생산은 무엇인가?"
-    results = google_cse_retriever.retrieve(query)
-    print(results)
+    google_results = google_cse_retriever.retrieve(query)
+    if not google_results:
+        raise HTTPException(status_code=404, detail="No results found from Google.")
+
+    # Step 2: 검색 결과를 벡터화하고 ChromaDB에 저장
+    chroma_db_manager = ChromaDBManager()
+    chroma_db_manager.add_documents(google_results)
+
+    # Step 3: 저장된 문서 중에서 쿼리와 유사한 문서 검색
+    search_results = chroma_db_manager.search_documents(query)
+
+    print(search_results)
 
 
 if __name__ == "__main__":
