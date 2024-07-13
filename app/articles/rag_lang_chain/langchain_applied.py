@@ -4,7 +4,7 @@ from typing import List, Union
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
-from googleapiclient.discovery import build
+from googleapiclient.discovery import build, logger
 from langchain.schema import Document, HumanMessage
 from langchain_community.retrievers import WebResearchRetriever
 from langchain_community.vectorstores import Chroma
@@ -14,6 +14,7 @@ from pydantic import BaseModel
 
 from app.articles.rag_lang_chain.chromadb_manager import ChromaDBManager
 from app.articles.rag_lang_chain.google_cse_retriver import GoogleCSERetriever
+from app.model.prompt.prompt_version import PromptVersion, get_system_prompt
 
 # 환경 변수 로드
 load_dotenv()
@@ -47,35 +48,12 @@ web_research_retriever = WebResearchRetriever.from_llm(
 )
 
 
-def create_prompt(
+async def create_prompt(
     original_text: str, relevant_info: List[Union[Document, dict]]
 ) -> str:
-    prompt = f"""
-    너는 내가 제공하는 어려운 대한민국 경제 신문 본문을 20대 초반이 읽어도 이해하기 쉽게, 한국어로 기사를 재생성하는 기자이다.
-    아래 json 형식에 맞게 기사를 재생성해야 한다. 단, 기사 본문의 경우 문단을 나누어야 한다. 줄바꿈 문자는 \\n으로 표시한다.
+    system_prompt = await get_system_prompt(version=PromptVersion.V_2024_07_14)
+    prompt = system_prompt.format(original_text=original_text)
 
-    다음은 json 형식의 예시이다:
-    {{
-        "title": "MZ세대가 흥미를 끌만한 기사 제목(한국어)",
-        "content": "기사 본문 (한국어). 단, 경제 기사의 독자층이 경제 지식이 부족한 20대 초반인 것을 고려하여 적당한 이모지를 사용하여 친근하고 간결하게 설명할 것. 문단은 \\n으로 구분할 것.",
-        "phrase": {{"어려웠던 경제 표현들" :  "어려웠던 경제 표현들을 쉽게 바꾼 문구"}}  (예시: {{"환율" : "다른 나라 돈과 우리나라 돈을 교환하는 비율"}}),
-        "comment": "기사를 보고 추론할 수 있는 것 1문장을 친구에게 설명하는 듯한 표현으로",
-        "category": "Category 중 하나"
-    }}
-
-    enum Category:
-        ECONOMY_AND_BUSINESS = "경제 및 기업"
-        POLITICS_AND_SOCIETY = "정치 및 사회"
-        TECHNOLOGY_AND_CULTURE = "기술 및 문화"
-        SPORTS_AND_LEISURE = "스포츠 및 여가"
-        OPINION_AND_ANALYSIS = "오피니언 및 분석"
-
-    결과는 json 형식이어야 한다.
-
-    원문: {original_text}
-
-    다음은 원문을 기반으로 한 주요 정보다:
-    """
     for idx, info in enumerate(relevant_info):
         if isinstance(info, Document):
             title = info.metadata.get("title", "제목 없음")
@@ -87,13 +65,14 @@ def create_prompt(
             snippet = info.get("snippet", "내용 없음")
         prompt += f"\n{idx + 1}. 제목: {title}\n   URL: {link}\n   내용: {snippet}\n"
     prompt += "\n이 정보를 바탕으로 쉬운 말로 재작성해 주세요."
+
+    print(prompt)
     return prompt
 
 
-async def simplify_article(article_request: ArticleRequest):
-    original_text = article_request.text
-
+async def simplify_article(original_text: str) -> str:
     # Step 1: Google Custom Search API를 사용하여 관련 정보 수집
+    print("HELLO 요청 시작~")
     google_results = google_cse_retriever.retrieve(original_text)
     if not google_results:
         raise HTTPException(status_code=404, detail="No results found from Google.")
@@ -105,13 +84,13 @@ async def simplify_article(article_request: ArticleRequest):
     # Step 3: 저장된 문서 중에서 쿼리와 유사한 문서 검색
     search_results = chroma_db_manager.search_documents(original_text)
 
-    print(search_results)
+    logger.info(f"Search results: {search_results}")
 
     # Step 4: Web Research Retriever를 사용하여 추가 정보 수집
     additional_info = search.results(original_text, num_results=3)
 
     # Step 5: 프롬프트 생성
-    prompt = create_prompt(
+    prompt = await create_prompt(
         original_text=original_text, relevant_info=search_results + additional_info
     )
 
@@ -119,16 +98,15 @@ async def simplify_article(article_request: ArticleRequest):
     messages = [HumanMessage(content=prompt)]
     response = search_llm.invoke(messages)
 
-    print(response.content)
+    logger.info(f"Response: {response.content}")
 
-    return {"simplified_text": response.content}
+    return response.content
 
 
 if __name__ == "__main__":
     asyncio.run(
         simplify_article(
-            ArticleRequest(
-                text="""
+            original_text="""
 일본 정부가 올해 발간한 ‘방위백서’에서 한국을 처음으로 협력 파트너이자 중요한 이웃나라로 규정했다. 하지만 20년째 “독도는 일본 고유영토”라는 억지 주장도 이어갔다.
 일본 정부는 12일 열린 각의(국무회의)에서 ‘2024년도 방위백서’를 채택했다. 올해 방위백서에서는 최근 달라진 한일 관계에 대한 기술이 추가됐다.
 대표적으로 한국에 대해 “국제사회에서 여러 과제 대응에 파트너로 협력해 나가야 할 중요한 이웃나라”라고 표현했다. 일본 정부가 방위백서에서 한국을 협력 파트너로 명기한 것은 이번이 처음이다.
@@ -144,6 +122,5 @@ if __name__ == "__main__":
 중국이 대만 주변과 남중국해에서 군사 활동을 활발히 하면서 실전 능력 향상을 도모하고 러시아와 군사 협력을 한층 강화하는 점도 우려할 만하다고 덧붙였다.
 러시아와 관련해서는 “극동 방면에도 최신 장비를 배치하는 경향이 있다”며 ‘강한 국가’라는 목표를 내걸고 군사 활동을 강화하고 있다고 진단했다.
     """
-            )
         )
     )
