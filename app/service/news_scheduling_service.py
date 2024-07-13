@@ -10,7 +10,7 @@ from app.database.session import db_session
 from app.model.article_publisher import Publisher
 from app.service.article_manage_service import ArticleManageService
 from app.service.simple_article_service import generate_simple_article
-
+from app.recommend.recommend_service import RecommendService
 
 async def fetch_rss_feed(rss_url, publisher_name):
     async with aiohttp.ClientSession() as session:
@@ -78,6 +78,21 @@ async def run_crawl_and_store(session: AsyncSession):
     else:
         logger.info("No new articles")
 
+
+    new_exist_articles = await ArticleManageService().get_all_articles(session=session)
+
+    # 새로운 기사들만 필터링
+    new_articles_id = [
+        article.id for article in new_exist_articles if article.probability_issue_finder is None
+    ]
+    recommend_service = RecommendService()
+    recommend_service.fit_model()
+    if new_articles:
+        for article_id in new_articles_id:
+            await recommend_service.get_classification_for_article(
+                article_id=article_id,
+                session=session
+            )
 
 async def schedule_task():
     while True:
