@@ -30,6 +30,7 @@ class ArticleManageService:
                 comment=comment,
                 category=category.name,
                 phrase=phrase,
+                probability_issue_finder=-1
             ),
             session=session,
         )
