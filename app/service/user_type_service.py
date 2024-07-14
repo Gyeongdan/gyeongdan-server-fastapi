@@ -136,11 +136,11 @@ class UserTypeService:
         return await UserTypeRepository().create(
             user_type=UserType(
                 id = answers.id,
-                user_type_issue_finder= user_types[0],
-                user_type_lifestyle_consumer= user_types[1],
-                user_type_entertainer= user_types[2],
-                user_type_tech_specialist= user_types[3],
-                user_type_professionals= user_types[4]
+                user_type_issue_finder= user_types[UserTypes.ISSUE_FINDER.value],
+                user_type_lifestyle_consumer= user_types[UserTypes.LIFESTYLE_CONSUMER.value],
+                user_type_entertainer= user_types[UserTypes.ENTERTAINER.value],
+                user_type_tech_specialist= user_types[UserTypes.TECH_SEPCIALIST.value],
+                user_type_professionals= user_types[UserTypes.PROFESSIONALS.value]
             ),
             session=session,
         )
