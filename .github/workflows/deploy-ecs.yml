@@ -125,11 +125,11 @@ jobs:
 
       - name: Verify New Task Definition is Deployed
         run: |
-          CURRENT_TASK_DEF_ARN=$(aws ecs describe-services --cluster ${{ env.ECS_CLUSTER }} --service ${{ env.ECS_SERVICE }} --query services[0].deployments[0].taskDefinition | jq -r ".")
-          NEW_TASK_DEF_ARN=${{ steps.ecs-deploy.outputs.task-definition-arn }}
-          echo "Current task arn: $CURRENT_TASK_DEF_ARN"
-          echo "New task arn: $NEW_TASK_DEF_ARN"
-          if [ "$CURRENT_TASK_DEF_ARN" != "$NEW_TASK_DEF_ARN" ]; then
+          echo "Verifying new task definition deployment..."
+          aws ecs wait services-stable --cluster ${{ env.ECS_CLUSTER }} --services ${{ env.ECS_SERVICE }}
+          if [ $? -eq 0 ]; then
+            echo "Deployment successful."
+          else
             echo "Deployment failed."
             exit 1
           fi
