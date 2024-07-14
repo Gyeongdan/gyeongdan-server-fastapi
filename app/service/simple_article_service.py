@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.model.ai_client.ai_client import LLMModel
-from app.model.ai_client.get_platform_client import get_platform_client
+
+from app.articles.rag_lang_chain.langchain_applied import request_rag_applied_openai
 from app.model.article_publisher import find_publisher
 from app.model.prompt.prompt_version import PromptVersion, get_system_prompt
 from app.model.simplified_article import SimplifiedArticle
@@ -9,26 +9,23 @@ from app.service.article_manage_service import ArticleManageService
 from app.service.crawl_article_service import CrawlArticleService
 from app.utils.json_parser import parse
 
-async def generate_simple_article(url: str, publisher: str, session: AsyncSession):
-    ai_client = get_platform_client(LLMModel.OPENAI_GPT4o)
 
+async def process_generate_article_by_url(
+    url: str, publisher: str, session: AsyncSession
+) -> SimplifiedArticle:
     # 프롬프트
-    system_prompt = await get_system_prompt(version=PromptVersion.V_2024_07_02)
+    system_prompt = await get_system_prompt(version=PromptVersion.V_2024_07_14)
 
     # 크롤링한 기사
     request_text = await CrawlArticleService().crawl_article(
         url=url, news_type=publisher
     )
 
-    # AI 요청
-    ai_result = parse(
-        await ai_client.request(
-            request_text=request_text.content,
-            system_prompt=system_prompt,
-            assistant_prompt=None,
-            model=LLMModel.OPENAI_GPT4o,
-        )
-    )
+    system_prompt = system_prompt.format(original_text=request_text.content)
+
+    # AI 번역 결과
+    ai_result = await request_rag_applied_openai(request_text.content, system_prompt)
+    ai_result = parse(ai_result.result_text)
 
     # Validate AI result
     if not ai_result.get("title") or not ai_result["title"].strip():
@@ -37,10 +34,13 @@ async def generate_simple_article(url: str, publisher: str, session: AsyncSessio
         raise ValueError("내용이 비어 있거나 누락되었습니다")
     if not ai_result.get("comment") or not ai_result["comment"].strip():
         raise ValueError("댓글이 비어 있거나 누락되었습니다")
-    if ai_result.get("category") not in [category.value for category in MailTypeCategory]:
+    if ai_result.get("category") not in [
+        category.value for category in MailTypeCategory
+    ]:
         raise ValueError(f"유효하지 않은 카테고리입니다: {ai_result.get('category')}")
 
     # JSON 객체인 ai_result를 simplified_article 객체로 변환
+
     simplified_article = SimplifiedArticle(**ai_result)
 
     # DB에 저장

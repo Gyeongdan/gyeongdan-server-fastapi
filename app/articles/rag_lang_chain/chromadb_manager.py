@@ -1,3 +1,4 @@
+import asyncio
 import os
 from typing import List
 
@@ -17,12 +18,17 @@ class ChromaDBManager:
             collection_name="documents", embedding_function=self.embeddings
         )
 
-    def add_documents(self, documents: List[dict]):
+    async def add_documents(self, documents: List[dict]):
         texts = [doc["snippet"] for doc in documents]
         metadata = [{"id": doc["link"], "title": doc["title"]} for doc in documents]
-        self.vectorstore.add_texts(texts, metadata)
+        await asyncio.to_thread(self.vectorstore.add_texts, texts, metadata)
 
-    def search_documents(self, query: str, k: int = 5) -> list[Document]:
-        query_vector = self.embeddings.embed_query(query)
-        results = self.vectorstore.similarity_search_by_vector(query_vector, k=k)
+    async def search_documents(self, query: str, k: int = 5) -> List[Document]:
+        query_vector = await asyncio.to_thread(self.embeddings.embed_query, query)
+        results = await asyncio.to_thread(
+            self.vectorstore.similarity_search_by_vector, query_vector, k=k
+        )
         return results
+
+
+# Example usage

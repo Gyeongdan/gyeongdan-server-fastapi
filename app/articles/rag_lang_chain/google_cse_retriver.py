@@ -1,66 +1,78 @@
-import os
-from http.client import HTTPException
 from typing import List
 
-from dotenv import load_dotenv
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
+import aiohttp
+from fastapi import HTTPException
 
-from app.articles.rag_lang_chain.chromadb_manager import ChromaDBManager
 
-# .env 파일에서 환경 변수 로드
-load_dotenv()
+class AsyncGoogleSearchAPIWrapper:
+    def __init__(self, api_key: str, cse_id: str):
+        self.api_key = api_key
+        self.cse_id = cse_id
+        self.base_url = "https://www.googleapis.com/customsearch/v1"
+
+    async def aget_relevant_documents(
+        self, query: str, num_results: int = 3
+    ) -> List[dict]:
+        async with aiohttp.ClientSession() as session:
+            params = {
+                "q": query,
+                "key": self.api_key,
+                "cx": self.cse_id,
+                "num": num_results,
+            }
+            async with session.get(self.base_url, params=params) as response:
+                if response.status != 200:
+                    raise HTTPException(
+                        status_code=response.status,
+                        detail="Google Search API request failed.",
+                    )
+                data = await response.json()
+                return [
+                    {
+                        "title": item["title"],
+                        "link": item["link"],
+                        "snippet": item["snippet"],
+                    }
+                    for item in data.get("items", [])
+                ]
 
 
 class GoogleCSERetriever:
-    def __init__(self, service, engine_id):
-        self.service = service
-        self.engine_id = engine_id
+    def __init__(self, api_key: str, cse_id: str):
+        self.api_key = api_key
+        self.cse_id = cse_id
 
-    def retrieve(self, query: str) -> List[dict]:
-        try:
-            results = self.service.cse().list(q=query, cx=self.engine_id).execute()
-            items = results.get("items", [])
-            return [
-                {
-                    "title": item["title"],
-                    "snippet": item["snippet"],
-                    "link": item["link"],
-                }
-                for item in items
-            ]
-        except HttpError as e:
-            print(f"An error occurred: {e}")
-            return []
-
-
-# 환경 변수에서 API 키와 엔진 ID 불러오기
-google_cse_api_key = os.getenv("GOOGLE_API_KEY")
-google_cse_engine_id = os.getenv("GOOGLE_CSE_ENGINE_ID")
-
-# Google Custom Search API 클라이언트 초기화
-google_cse_service = build("customsearch", "v1", developerKey=google_cse_api_key)
-
-# Google CSE Retriever 초기화
-google_cse_retriever = GoogleCSERetriever(
-    service=google_cse_service, engine_id=google_cse_engine_id
-)
+    async def retrieve(self, query: str) -> List[dict]:
+        url = f"https://www.googleapis.com/customsearch/v1?q={query}&key={self.api_key}&cx={self.cse_id}"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status != 200:
+                    raise HTTPException(
+                        response.status, "Error retrieving data from Google."
+                    )
+                result = await response.json()
+                items = result.get("items", [])
+                return [
+                    {
+                        "title": item["title"],
+                        "snippet": item["snippet"],
+                        "link": item["link"],
+                    }
+                    for item in items
+                ]
 
 
-def get_related_reference(query: str):
-    google_results = google_cse_retriever.retrieve(query)
-    if not google_results:
-        raise HTTPException(status_code=404, detail="No results found from Google.")
-
-    # Step 2: 검색 결과를 벡터화하고 ChromaDB에 저장
-    chroma_db_manager = ChromaDBManager()
-    chroma_db_manager.add_documents(google_results)
-
-    # Step 3: 저장된 문서 중에서 쿼리와 유사한 문서 검색
-    search_results = chroma_db_manager.search_documents(query)
-
-    print(search_results)
-
-
-if __name__ == "__main__":
-    get_related_reference(query="국내총생산은 무엇인가?")
+# async def get_related_reference(query: str):
+#     google_cse_api_key = os.getenv("GOOGLE_API_KEY")
+#     google_cse_engine_id = os.getenv("GOOGLE_CSE_ENGINE_ID")
+#     google_cse_retriever = GoogleCSERetriever(api_key=google_cse_engine_id,
+#                                               cse_id=google_cse_api_key)
+#     google_results = google_cse_retriever.retrieve(query)
+#     # Step 2: 검색 결과를 벡터화하고 ChromaDB에 저장
+#     chroma_db_manager = ChromaDBManager()
+#     await chroma_db_manager.add_documents(google_results)
+#
+#     # Step 3: 저장된 문서 중에서 쿼리와 유사한 문서 검색
+#     search_results = chroma_db_manager.search_documents(query)
+#
+#     return search_results
