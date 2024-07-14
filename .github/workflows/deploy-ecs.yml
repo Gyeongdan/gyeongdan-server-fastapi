@@ -96,6 +96,9 @@ jobs:
             DB_NAME=${{ secrets.DB_NAME }}
             DB_PORT=${{ secrets.DB_PORT }}
             OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            GOOGLE_CSE_ID=${{ secrets.GOOGLE_CSE_ID }}
+            GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}
+            USER_AGENT=${{ secrets.USER_AGENT }}
           cache-from: type=gha
           cache-to: type=gha,mode=min,ignore-error=true
 
@@ -122,11 +125,11 @@ jobs:
 
       - name: Verify New Task Definition is Deployed
         run: |
-          CURRENT_TASK_DEF_ARN=$(aws ecs describe-services --cluster ${{ env.ECS_CLUSTER }} --service ${{ env.ECS_SERVICE }} --query services[0].deployments[0].taskDefinition | jq -r ".")
-          NEW_TASK_DEF_ARN=${{ steps.ecs-deploy.outputs.task-definition-arn }}
-          echo "Current task arn: $CURRENT_TASK_DEF_ARN"
-          echo "New task arn: $NEW_TASK_DEF_ARN"
-          if [ "$CURRENT_TASK_DEF_ARN" != "$NEW_TASK_DEF_ARN" ]; then
+          echo "Verifying new task definition deployment..."
+          aws ecs wait services-stable --cluster ${{ env.ECS_CLUSTER }} --services ${{ env.ECS_SERVICE }}
+          if [ $? -eq 0 ]; then
+            echo "Deployment successful."
+          else
             echo "Deployment failed."
             exit 1
           fi
