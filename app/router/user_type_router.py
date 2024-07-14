@@ -13,7 +13,7 @@ from app.service.user_type_service import UserTypeQuestionnaireRequestDTO
 
 user_type_router = APIRouter()
 
-@user_type_router.get("/user_type/questionnaire", response_model=GenericResponseDTO[List[UserTypeQuestionnaire]])
+@user_type_router.get("/user-type/questionnaire", response_model=GenericResponseDTO[List[UserTypeQuestionnaire]])
 async def get_questionnaire():
     data = await UserTypeService().get_questionnaire()
     return GenericResponseDTO[List[UserTypeQuestionnaire]](
@@ -23,7 +23,7 @@ async def get_questionnaire():
     )
 
 
-@user_type_router.post("/user_Type/save", response_model=GenericResponseDTO[int])
+@user_type_router.post("/user-type", response_model=GenericResponseDTO[int])
 async def create_subscription(
     request: UserTypeQuestionnaireRequestDTO,
     session: AsyncSession = Depends(get_db_session),
