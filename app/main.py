@@ -12,6 +12,7 @@ from app.router.generate_simple_article_router import simple_article_router
 from app.router.newsletter_article_crud_router import newsletter_article_router
 from app.router.send_email_service_router import send_email_service_router
 from app.router.subscription_crud_router import subscription_router
+from app.router.user_type_router import user_type_router
 from app.service.news_scheduling_service import schedule_task
 
 app = FastAPI()
@@ -32,7 +33,7 @@ app.add_middleware(LoggingMiddleware)
 app.include_router(subscription_router)
 app.include_router(newsletter_article_router)
 app.include_router(send_email_service_router)
-
+app.include_router(user_type_router)
 app.include_router(simple_article_router)
 
 # exception handlers
