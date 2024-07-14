@@ -1,10 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.articles.rag_lang_chain.langchain_applied import request_rag_applied_openai
 from app.model.article_publisher import find_publisher
 from app.model.prompt.prompt_version import PromptVersion, get_system_prompt
 from app.model.simplified_article import SimplifiedArticle
 from app.model.subscription import MailTypeCategory
+from app.rag_lang_chain.langchain_applied import request_rag_applied_openai
 from app.service.article_manage_service import ArticleManageService
 from app.service.crawl_article_service import CrawlArticleService
 from app.utils.json_parser import parse

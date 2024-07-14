@@ -7,12 +7,12 @@ from langchain.schema import Document
 from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
 
-from app.articles.rag_lang_chain.chromadb_manager import ChromaDBManager
-from app.articles.rag_lang_chain.google_cse_retriver import (
+from app.config.loguru_config import logger
+from app.rag_lang_chain.chromadb_manager import ChromaDBManager
+from app.rag_lang_chain.google_cse_retriver import (
     AsyncGoogleSearchAPIWrapper,
     GoogleCSERetriever,
 )
-from app.config.loguru_config import logger
 
 
 class RagAppliedResult:
