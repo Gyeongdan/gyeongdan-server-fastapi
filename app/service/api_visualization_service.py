@@ -1,4 +1,5 @@
 # api_visualization_service.py
+# pylint: disable=R0914
 
 import pandas as pd
 import plotly.express as px
@@ -26,6 +27,16 @@ class GraphService:
             "template",
             "width",
             "height",
+            "text_auto",
+            "text",
+            "hover_data",
+            "animation_frame",
+            "animation_group",
+            "size",
+            "symbol",
+            "trendline",
+            "histfunc",
+            "markers",
         }
         self.safe_pandas_params = {
             "melt": {"id_vars", "value_vars"},
@@ -116,7 +127,15 @@ class GraphService:
         width=800,
         height=600,
         barmode="relative",
+        text_auto=False,
+        text=None,
+        hover_data=None,
+        animation_frame=None,
+        animation_group=None,
     ):
+        if text is None:
+            text_auto = True
+
         fig = px.bar(
             df,
             x=x,
@@ -128,7 +147,15 @@ class GraphService:
             width=width,
             height=height,
             barmode=barmode,
+            text_auto=text_auto,
+            text=text,
+            hover_data=hover_data,
+            animation_frame=animation_frame,
+            animation_group=animation_group,
         )
+        # slider 값이 들어왔을 때, 애니메이션 버튼 없애주는 친구
+        if animation_frame is not None:
+            fig["layout"].pop("updatemenus")
         return fig
 
     async def plot_line(
@@ -142,6 +169,9 @@ class GraphService:
         template=None,
         width=800,
         height=600,
+        markers=True,
+        animation_frame=None,
+        animation_group=None,
     ):
         fig = px.line(
             df,
@@ -153,7 +183,13 @@ class GraphService:
             template=template,
             width=width,
             height=height,
+            markers=markers,
+            animation_frame=animation_frame,
+            animation_group=animation_group,
         )
+        # slider 값이 들어왔을 때, 애니메이션 버튼 없애주는 친구
+        if animation_frame is not None:
+            fig["layout"].pop("updatemenus")
         return fig
 
     async def plot_pie(
@@ -167,6 +203,7 @@ class GraphService:
         template=None,
         width=800,
         height=600,
+        hover_data=None,
     ):
         fig = px.pie(
             df,
@@ -178,6 +215,7 @@ class GraphService:
             template=template,
             width=width,
             height=height,
+            hover_data=hover_data,
         )
         return fig
 
@@ -193,6 +231,10 @@ class GraphService:
         template=None,
         width=800,
         height=600,
+        text_auto=True,
+        histfunc=None,
+        animation_frame=None,
+        animation_group=None,
     ):
         fig = px.histogram(
             df,
@@ -204,7 +246,14 @@ class GraphService:
             template=template,
             width=width,
             height=height,
+            text_auto=text_auto,
+            histfunc=histfunc,
+            animation_frame=animation_frame,
+            animation_group=animation_group,
         )
+        # slider 값이 들어왔을 때, 애니메이션 버튼 없애주는 친구
+        if animation_frame is not None:
+            fig["layout"].pop("updatemenus")
         return fig
 
     async def plot_scatter(
@@ -218,6 +267,12 @@ class GraphService:
         template=None,
         width=800,
         height=600,
+        hover_data=None,
+        size=None,
+        symbol=None,
+        trendline=None,
+        animation_frame=None,
+        animation_group=None,
     ):
         fig = px.scatter(
             df,
@@ -229,7 +284,16 @@ class GraphService:
             template=template,
             width=width,
             height=height,
+            hover_data=hover_data,
+            size=size,
+            symbol=symbol,
+            trendline=trendline,
+            animation_frame=animation_frame,
+            animation_group=animation_group,
         )
+        # slider 값이 들어왔을 때, 애니메이션 버튼 없애주는 친구
+        if animation_frame is not None:
+            fig["layout"].pop("updatemenus")
         return fig
 
     # 전처리 함수들
