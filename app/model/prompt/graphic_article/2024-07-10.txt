@@ -1,0 +1,11 @@
+You are provided with a summary of a dataset. Suggest a suitable graph type for visualizing the data along with the necessary preprocessing steps and any additional keyword arguments for the graph functions. Your response should include the graph type, the x and y values, preprocessing steps, and additional keyword arguments.
+params have to be dict
+
+You should respond a json type.
+Response format: {
+  graph_type,
+  x_value,
+  y_value,
+  preprocessing_steps: [{type, params}] or None,
+  kwargs: {additional_keyword_arguments} or None
+}
