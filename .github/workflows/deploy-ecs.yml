@@ -125,26 +125,14 @@ jobs:
 
       - name: Verify New Task Definition is Deployed
         run: |
-          CURRENT_TASK_DEF_ARN=""
-          RETRIES=3
-          SLEEP_INTERVAL=10
-
-          for ((i=0; i<RETRIES; i++)); do
-            CURRENT_TASK_DEF_ARN=$(aws ecs describe-services --cluster ${{ env.ECS_CLUSTER }} --service ${{ env.ECS_SERVICE }} --query services[0].deployments[0].taskDefinition | jq -r ".")
-            NEW_TASK_DEF_ARN=${{ steps.ecs-deploy.outputs.task-definition-arn }}
-            echo "Attempt $(($i + 1)): Current task arn: $CURRENT_TASK_DEF_ARN"
-
-            if [ "$CURRENT_TASK_DEF_ARN" == "$NEW_TASK_DEF_ARN" ]; then
-              echo "Deployment successful."
-              exit 0
-            fi
-
-            echo "ARNs do not match. Retrying in $SLEEP_INTERVAL seconds..."
-            sleep $SLEEP_INTERVAL
-          done
-
-          echo "Deployment failed after $RETRIES attempts."
-          exit 1
+          CURRENT_TASK_DEF_ARN=$(aws ecs describe-services --cluster ${{ env.ECS_CLUSTER }} --service ${{ env.ECS_SERVICE }} --query services[0].deployments[0].taskDefinition | jq -r ".")
+          NEW_TASK_DEF_ARN=${{ steps.ecs-deploy.outputs.task-definition-arn }}
+          echo "Current task arn: $CURRENT_TASK_DEF_ARN"
+          echo "New task arn: $NEW_TASK_DEF_ARN"
+          if [ "$CURRENT_TASK_DEF_ARN" != "$NEW_TASK_DEF_ARN" ]; then
+            echo "Deployment failed."
+            exit 1
+          fi
 
       - name: Post Slack Channel that Build Success
         if: success()
