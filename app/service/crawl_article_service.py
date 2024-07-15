@@ -128,7 +128,7 @@ class CrawlArticleService:
 
         return article_body
 
-    def __find_image_han_kyung(soup: BeautifulSoup):
+    def __find_image_han_kyung(self, soup: BeautifulSoup):
         figure_img_div = soup.find('div', class_='figure-img')
 
         # figure-img 클래스를 가진 div 태그가 있다면
@@ -139,7 +139,7 @@ class CrawlArticleService:
                 img_url = img_tag.get('src')
                 return img_url
 
-    def __find_image_mae_kyung(soup: BeautifulSoup):
+    def __find_image_mae_kyung(self, soup: BeautifulSoup):
         thumb_div = soup.find('div', class_='thumb_area img')
         if thumb_div:
             # 그 안의 img 태그 선택
@@ -148,7 +148,7 @@ class CrawlArticleService:
                 img_url = img_tag.get('src')
                 return img_url
 
-    def __find_image_seoul_kyung(soup: BeautifulSoup):
+    def __find_image_seoul_kyung(self, soup: BeautifulSoup):
         photo_span = soup.find('span', class_='photo')
 
         # photo 클래스를 가진 span 태그가 있다면
