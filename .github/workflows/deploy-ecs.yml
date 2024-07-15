@@ -132,6 +132,7 @@ jobs:
           if [ "$CURRENT_TASK_DEF_ARN" != "$NEW_TASK_DEF_ARN" ]; then
             echo "Deployment failed."
             exit 1
+          fi
 
       - name: Post Slack Channel that Build Success
         if: success()
