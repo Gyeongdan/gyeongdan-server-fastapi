@@ -53,6 +53,7 @@ async def process_generate_article_by_url(
         simple_content=simplified_article.content,
         phrase=simplified_article.phrase,
         comment=simplified_article.comment,
+        published_at=request_text.pub_date,
         category=MailTypeCategory(ai_result["category"]),
         session=session,
     )
