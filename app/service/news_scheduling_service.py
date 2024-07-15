@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 import aiohttp
 import feedparser
+from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.loguru_config import logger
@@ -88,6 +89,7 @@ async def run_crawl_and_store(session: AsyncSession):
         if article.probability_issue_finder == -1
     ]
     recommend_service = RecommendService()
+    await recommend_service.initialize_data(session=session)
     recommend_service.fit_model()
     if new_articles:
         for article_id in new_articles_id:

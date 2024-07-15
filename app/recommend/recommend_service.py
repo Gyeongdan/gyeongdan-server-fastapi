@@ -1,6 +1,7 @@
 # pylint: disable=missing-module-docstring, missing-module-docstring, attribute-defined-outside-init, unnecessary-comprehension, not-callable, consider-using-f-string, unused-variable
 
 import asyncio
+import os
 import warnings
 from datetime import datetime
 
@@ -27,11 +28,16 @@ def articles_to_dataframe(articles: list[Articles]) -> pd.DataFrame:
     articles_dict_list = [
         {
             "article_id": article.id,
-            article.category: 1,
+            'ECONOMY_AND_BUSINESS': 0,
+            'POLITICS_AND_SOCIETY': 0,
+            'SPORTS_AND_LEISURE': 0,
+            'TECHNOLOGY_AND_CULTURE': 0
             # "created_at": article.created_at.strftime('%Y-%m-%d'),
         }
         for article in articles
     ]
+    for i in range(len(articles_dict_list)):
+        articles_dict_list[i][articles[i].category] = 1
 
     df = pd.DataFrame(articles_dict_list)
     return df
@@ -61,6 +67,7 @@ class ArticleDataInfo:
                 # "created_at": [created_at],
             }
         )
+
         self.article_data.iloc[0][category] = 1
 
 
@@ -84,10 +91,11 @@ class RecommendService:
 
     def set_user_datas(self, user_data_path):
         self.user_data_path = user_data_path
-        self.user_datas = pd.read_csv(user_data_path)
+        self.user_datas = pd.read_csv(os.path.dirname(os.path.abspath(__file__)) + user_data_path)
+
 
     async def initialize_data(self, session):
-        self.set_user_datas("app/recommend/user_classification.csv")
+        self.set_user_datas("/./user_classification.csv")
         await self.set_article_datas(session)
         await self.set_interaction_datas(session)
 
@@ -127,6 +135,7 @@ class RecommendService:
             user_features=self.user_features_col,
         )
 
+        print(self.item_feat)
         self.item_features = self.dataset.build_item_features(
             (x, y) for x, y in zip(self.item_features["article_id"], self.item_feat)
         )
