@@ -3,13 +3,11 @@ from datetime import datetime, timedelta
 
 import aiohttp
 import feedparser
-from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.loguru_config import logger
 from app.database.session import db_session
 from app.model.article_publisher import Publisher
-from app.recommend.recommend_service import RecommendService
 from app.service.article_manage_service import ArticleManageService
 from app.service.simple_article_service import process_generate_article_by_url
 
@@ -80,22 +78,22 @@ async def run_crawl_and_store(session: AsyncSession):
     else:
         logger.info("No new articles")
 
-    new_exist_articles = await ArticleManageService().get_all_articles(session=session)
+    # new_exist_articles = await ArticleManageService().get_all_articles(session=session)
 
     # 새로운 기사들만 필터링
-    new_articles_id = [
-        article.id
-        for article in new_exist_articles
-        if article.probability_issue_finder == -1
-    ]
-    recommend_service = RecommendService()
-    await recommend_service.initialize_data(session=session)
-    recommend_service.fit_model()
-    if new_articles:
-        for article_id in new_articles_id:
-            await recommend_service.get_classification_for_article(
-                article_id=article_id, session=session
-            )
+    # new_articles_id = [
+    #     article.id
+    #     for article in new_exist_articles
+    #     if article.probability_issue_finder == -1
+    # ]
+    # recommend_service = RecommendService()
+    # await recommend_service.initialize_data(session=session)
+    # recommend_service.fit_model()
+    # if new_articles:
+    #     for article_id in new_articles_id:
+    #         await recommend_service.get_classification_for_article(
+    #             article_id=article_id, session=session
+    #         )
 
 
 async def schedule_task():
