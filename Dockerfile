@@ -4,7 +4,7 @@ WORKDIR /app
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends gcc libpq-dev libatlas-base-dev && \
-    pip install --no-cache-dir pipenv
+    pip install --no-cache-dir pipenv \
 
 COPY Pipfile Pipfile.lock ./
 RUN pipenv install --deploy --ignore-pipfile
