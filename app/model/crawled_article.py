@@ -22,6 +22,7 @@ class Articles(Base):
     phrase = Column(JSONB, nullable=True)
     comment = Column(Text, nullable=True)
     category = Column(CHAR(255), nullable=True)
+    published_at = Column(DateTime, nullable=True)
     probability_issue_finder = Column(Integer, nullable=True)
     probability_lifestyle_consumer = Column(Integer, nullable=True)
     probability_entertainer = Column(Integer, nullable=True)
