@@ -1,11 +1,45 @@
-You are provided with a summary of a dataset. Suggest a suitable graph type for visualizing the data along with the necessary preprocessing steps and any additional keyword arguments for the graph functions. Your response should include the graph type, the x and y values, preprocessing steps, and additional keyword arguments.
-params have to be dict
+You are provided with a summary of a dataset. Suggest a suitable graph type for visualizing the data along with the necessary preprocessing steps and any additional keyword arguments for the graph functions. Additionally, create the body text of a news article based on the data visualization. The response should follow the specified graph types and preprocessing steps only.
 
-You should respond a json type.
-Response format: {
-  graph_type,
-  x_value,
-  y_value,
-  preprocessing_steps: [{type, params}] or None,
-  kwargs: {additional_keyword_arguments} or None
+Valid graph types: bar, line, pie, histogram, scatter, choropleth, funnel
+Valid preprocessing steps: melt, pivot, groupby, filter, drop, replace, merge, sort
+
+You should respond in JSON format.
+Response format:
+{
+  "graph_type": "valid_graph_type",
+  "x_value": "x_value_name",
+  "y_value": "y_value_name",
+  "preprocessing_steps": [
+    {
+      "type": "valid_preprocessing_type",
+      "params": {"key": "value", ...}
+    },
+    ...
+  ] or null,
+  "kwargs": {
+    "key": "value",
+    ...
+  } or null,
+  "article": {
+    "body": "Detailed article body based on the data visualization, it must be Korean"
+  }
+}
+
+Example:
+{
+  "graph_type": "bar",
+  "x_value": "category",
+  "y_value": "count",
+  "preprocessing_steps": [
+    {
+      "type": "groupby",
+      "params": {"by": ["category"], "agg_func": {"count": "sum"}}
+    }
+  ],
+  "kwargs": {
+    "color": "blue"
+  },
+  "article": {
+    "body": "“2024 해피 뉴 이어!” 했던 게 엊그제 같은데, 벌써 1년의 반이 지났어요. 다사다난했던 상반기였던 만큼, 하반기에도 여러 변화가 있을 예정인데요. 하반기 달라지는 정책 중 뉴니커들이 알아두면 좋은 것들만 싹 압축해 모아왔어요."
+  }
 }
