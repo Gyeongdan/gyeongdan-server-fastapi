@@ -23,6 +23,11 @@ class PublicDataAPI(Enum):
         url="https://apis.data.go.kr/1383000/yhis/YouthNewsService/getYouthNewsList",
         urlElements=["pageNo=1", "numOfRows=10", "type=xml&pstRegYmd=20231101"],
     )
+    jinju_covid = PublicDataAPIInfo(
+        api_name="진주 코비드",
+        url="https://api.odcloud.kr/api/15099487/v1/uddi:53930f47-e995-47a2-ac7c-a81ae91c3b4c?",
+        urlElements=["page=1", "perPage=40", "type=json"],
+    )
 
 
 class PublicDataAPIService:
