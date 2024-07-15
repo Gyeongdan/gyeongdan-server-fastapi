@@ -16,6 +16,7 @@ class ArticleManageService:
         simple_content: str,
         phrase: dict,
         comment: str,
+        image_url: str,
         published_at: str,
         category: MailTypeCategory,
         session: AsyncSession,
@@ -30,6 +31,7 @@ class ArticleManageService:
                 simple_content=simple_content,
                 comment=comment,
                 published_at=published_at,
+                image_url=image_url,
                 category=category.name,
                 phrase=phrase,
                 probability_issue_finder=-1
