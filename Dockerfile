@@ -6,6 +6,8 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends gcc libpq-dev libatlas-base-dev libomp-dev && \
     pip install --no-cache-dir pipenv
 
+ENV NO_OPENMP=1
+
 COPY Pipfile Pipfile.lock ./
 RUN pipenv install --deploy --ignore-pipfile && \
     pipenv run pip install --no-binary lightfm lightfm
