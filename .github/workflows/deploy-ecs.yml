@@ -96,6 +96,9 @@ jobs:
             DB_NAME=${{ secrets.DB_NAME }}
             DB_PORT=${{ secrets.DB_PORT }}
             OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            GOOGLE_CSE_ID=${{ secrets.GOOGLE_CSE_ID }}
+            GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}
+            USER_AGENT=${{ secrets.USER_AGENT }}
           cache-from: type=gha
           cache-to: type=gha,mode=min,ignore-error=true
 
@@ -129,7 +132,6 @@ jobs:
           if [ "$CURRENT_TASK_DEF_ARN" != "$NEW_TASK_DEF_ARN" ]; then
             echo "Deployment failed."
             exit 1
-          fi
 
       - name: Post Slack Channel that Build Success
         if: success()
