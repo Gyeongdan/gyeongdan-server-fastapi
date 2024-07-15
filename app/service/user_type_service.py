@@ -141,7 +141,7 @@ class UserTypeService:
         user_types = calculate_user_type(answers, self.questionnaire_data)
         return await UserTypeRepository().create(
             user_type=UserType(
-                id=answers.id,
+                user_id=answers.id,
                 user_type_issue_finder=user_types[UserTypes.ISSUE_FINDER.value],
                 user_type_lifestyle_consumer=user_types[
                     UserTypes.LIFESTYLE_CONSUMER.value

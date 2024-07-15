@@ -1,5 +1,7 @@
 import json
 import ssl
+from datetime import datetime
+from typing import List
 
 import aiohttp
 from aiohttp import ClientSession
@@ -11,6 +13,13 @@ from app.model.article_publisher import Publisher, find_publisher
 
 
 class CrawlArticleService:
+    def __init__(self):
+        self.__find_image_dict = {
+            Publisher.HAN_KYUNG.name: self.__find_image_han_kyung,
+            Publisher.MAE_KYUNG.name: self.__find_image_mae_kyung,
+            Publisher.SEOUL_KYUNG.name: self.__find_image_seoul_kyung
+        }
+
 
     async def crawl_article(self, news_type: str, url: str) -> ArticleResponse:
         news_type = find_publisher(news_type)
@@ -25,6 +34,8 @@ class CrawlArticleService:
 
         result_html = BeautifulSoup(response_text, "html.parser")
         title = self.__find_title(result_html, news_type)
+        pub_date = self.__find_pub_date(result_html, news_type)
+        image_url = self.__find_image(result_html, news_type)
         if news_type == Publisher.SEOUL_KYUNG:
             content = self.__find_content_from_script(result_html)
         else:
@@ -34,7 +45,7 @@ class CrawlArticleService:
         if not content.strip():
             raise HTTPException(status_code=404, detail="파싱 결과가 없습니다.")
 
-        return ArticleResponse(title=title, content=content)
+        return ArticleResponse(title=title, content=content, pub_date=pub_date, image_url=image_url)
 
     async def __fetch_page(self, url: str) -> str:
         ssl_context = ssl.create_default_context()
@@ -43,6 +54,25 @@ class CrawlArticleService:
         async with ClientSession() as session:
             async with session.get(url, ssl=ssl_context) as response:
                 return await response.text()
+
+
+    def __find_image(self, soup: BeautifulSoup, news_type: Publisher):
+        return self.__find_image_dict[news_type.name](soup)
+
+
+    def __find_pub_date(self, soup: BeautifulSoup, news_type: Publisher):
+        property_str = ''
+        if news_type == Publisher.HAN_KYUNG:
+            property_str = 'article:published'
+        else:
+            property_str = "article:published_time"
+        pub_date_element = soup.find("meta", property=property_str)
+        pub_date = pub_date_element["content"] if pub_date_element else "pub date not found"
+
+        if news_type == Publisher.HAN_KYUNG:
+            date_obj = datetime.fromisoformat(pub_date)
+            pub_date = date_obj.isoformat()
+        return pub_date
 
     def __find_title(self, soup: BeautifulSoup, news_type: Publisher) -> str:
         if news_type == Publisher.SEOUL_KYUNG:
@@ -97,3 +127,34 @@ class CrawlArticleService:
         article_body = json_content.get("articleBody", "")
 
         return article_body
+
+    def __find_image_han_kyung(self, soup: BeautifulSoup):
+        figure_img_div = soup.find('div', class_='figure-img')
+
+        # figure-img 클래스를 가진 div 태그가 있다면
+        if figure_img_div:
+            # 그 안의 img 태그 선택
+            img_tag = figure_img_div.find('img')
+            if img_tag:
+                img_url = img_tag.get('src')
+                return img_url
+
+    def __find_image_mae_kyung(self, soup: BeautifulSoup):
+        thumb_div = soup.find('div', class_='thumb_area img')
+        if thumb_div:
+            # 그 안의 img 태그 선택
+            img_tag = thumb_div.find('img')
+            if img_tag:
+                img_url = img_tag.get('src')
+                return img_url
+
+    def __find_image_seoul_kyung(self, soup: BeautifulSoup):
+        photo_span = soup.find('span', class_='photo')
+
+        # photo 클래스를 가진 span 태그가 있다면
+        if photo_span:
+            # 그 안의 img 태그 선택
+            img_tag = photo_span.find('img')
+            if img_tag:
+                img_url = img_tag.get('src')
+                return img_url

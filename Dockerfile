@@ -3,15 +3,11 @@ FROM --platform=linux/amd64 python:3.11.4-slim-bookworm
 WORKDIR /app
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends gcc libpq-dev libatlas-base-dev libomp-dev && \
-    pip install --no-cache-dir pipenv
-
-ENV NO_OPENMP=1
+    apt-get install -y --no-install-recommends gcc libpq-dev libatlas-base-dev && \
+    pip install --no-cache-dir pipenv \
 
 COPY Pipfile Pipfile.lock ./
 RUN pipenv install --deploy --ignore-pipfile
-
-RUN pipenv run pip install --no-binary lightfm lightfm
 
 RUN apt-get purge -y --auto-remove gcc && \
     rm -rf /var/lib/apt/lists/*

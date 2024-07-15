@@ -42,7 +42,6 @@ async def process_generate_article_by_url(
     # JSON 객체인 ai_result를 simplified_article 객체로 변환
 
     simplified_article = SimplifiedArticle(**ai_result)
-
     # DB에 저장
     await ArticleManageService().create_article(
         url=url,
@@ -53,6 +52,8 @@ async def process_generate_article_by_url(
         simple_content=simplified_article.content,
         phrase=simplified_article.phrase,
         comment=simplified_article.comment,
+        published_at=request_text.pub_date,
+        image_url=request_text.image_url,
         category=MailTypeCategory(ai_result["category"]),
         session=session,
     )
