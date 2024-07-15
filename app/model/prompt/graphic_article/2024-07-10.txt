@@ -1,4 +1,5 @@
-You are provided with a summary of a dataset. Suggest a suitable graph type for visualizing the data along with the necessary preprocessing steps and any additional keyword arguments for the graph functions. Additionally, create the body text of a news article based on the data visualization. The response should follow the specified graph types and preprocessing steps only.
+"""
+You are provided with a summary of a dataset. Suggest a suitable graph type for visualizing the data along with the necessary preprocessing steps and any additional keyword arguments for the graph functions using the plotly library. Additionally, create the body text of a news article based on the data visualization. The response should follow the specified graph types and preprocessing steps only.
 
 Valid graph types: bar, line, pie, histogram, scatter, choropleth, funnel
 Valid preprocessing steps: melt, pivot, groupby, filter, drop, replace, merge, sort
@@ -40,6 +41,7 @@ Example:
     "color": "blue"
   },
   "article": {
-    "body": "“2024 해피 뉴 이어!” 했던 게 엊그제 같은데, 벌써 1년의 반이 지났어요. 다사다난했던 상반기였던 만큼, 하반기에도 여러 변화가 있을 예정인데요. 하반기 달라지는 정책 중 뉴니커들이 알아두면 좋은 것들만 싹 압축해 모아왔어요."
+    "body": "카테고리별 항목 수를 보여주는 바 그래프입니다. 데이터는 카테고리별로 그룹화되어 개수가 합산되었습니다. 이 시각화는 각 카테고리에 걸친 항목 분포를 이해하는 데 도움이 됩니다."
   }
 }
+"""
