@@ -59,7 +59,7 @@ async def request_rag_applied_openai(
     # Step 0 : 기사 id값에 따른 기사 원문 가져오기
     article_service = ArticleManageService()
     article_by_id = await article_service.get_article_by_id(news_id, session)
-    original_text = article_by_id.contenru
+    original_text = article_by_id.content
     if not original_text:
         raise HTTPException(status_code=404, detail="Article not found.")
 
@@ -87,9 +87,9 @@ async def request_rag_applied_openai(
     additional_info = await search.aget_relevant_documents(original_text, num_results=3)
     logger.info(f"3. Additional info: {additional_info}")
 
-    # Step 4: 프롬프트 생성(원문 + 검색 결과 + 추가 정보)
+    # Step 4: 프롬프트 생성 (원문 + 검색 결과 + 추가 정보)
     rag_applied_prompt = await create_rag_applied_prompt(
-        original_prompt=system_prompt, relevant_info=search_results + additional_info
+        original_prompt=system_prompt, relevant_info=search_results + additional_info, original_text=original_text
     )
 
     # Step 5: OpenAI 요청 결과 반환
@@ -126,8 +126,12 @@ async def openai_response(
 
 
 async def create_rag_applied_prompt(
-    original_prompt: str, relevant_info: List[Union[Document, dict]]
+    original_prompt: str, relevant_info: List[Union[Document, dict]], original_text: str
 ) -> str:
+    # 원문 기사 추가
+    original_prompt += f"\n원문 기사:\n{original_text}\n\n"
+
+    # 관련 정보 추가
     for idx, info in enumerate(relevant_info):
         if isinstance(info, Document):
             title = info.metadata.get("title", "제목 없음")
@@ -138,7 +142,7 @@ async def create_rag_applied_prompt(
             link = info.get("link", "URL 없음")
             snippet = info.get("snippet", "내용 없음")
         original_prompt += (
-            f"\n{idx + 1}. 제목: {title}\n   URL: {link}\n   내용: {snippet}\n"
+            f"관련된 기사 정보들 \n{idx + 1}. 제목: {title}\n   URL: {link}\n   내용: {snippet}\n"
         )
 
     logger.info(f"RAG Applied Prompt: {original_prompt}")
