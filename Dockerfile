@@ -9,8 +9,7 @@ RUN apt-get update && \
 ENV NO_OPENMP=1
 
 COPY Pipfile Pipfile.lock ./
-RUN pipenv install --deploy --ignore-pipfile && \
-    pipenv run pip install --no-binary lightfm lightfm
+RUN pipenv install --deploy --ignore-pipfile
 
 RUN apt-get purge -y --auto-remove gcc && \
     rm -rf /var/lib/apt/lists/*
