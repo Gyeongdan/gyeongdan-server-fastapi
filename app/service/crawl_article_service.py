@@ -1,5 +1,7 @@
 import json
 import ssl
+from datetime import datetime
+from typing import List
 
 import aiohttp
 from aiohttp import ClientSession
@@ -25,6 +27,7 @@ class CrawlArticleService:
 
         result_html = BeautifulSoup(response_text, "html.parser")
         title = self.__find_title(result_html, news_type)
+        pub_date = self.__find_pub_date(result_html, news_type)
         if news_type == Publisher.SEOUL_KYUNG:
             content = self.__find_content_from_script(result_html)
         else:
@@ -34,7 +37,7 @@ class CrawlArticleService:
         if not content.strip():
             raise HTTPException(status_code=404, detail="파싱 결과가 없습니다.")
 
-        return ArticleResponse(title=title, content=content)
+        return ArticleResponse(title=title, content=content, pub_date=pub_date)
 
     async def __fetch_page(self, url: str) -> str:
         ssl_context = ssl.create_default_context()
@@ -43,6 +46,21 @@ class CrawlArticleService:
         async with ClientSession() as session:
             async with session.get(url, ssl=ssl_context) as response:
                 return await response.text()
+
+
+    def __find_pub_date(self, soup: BeautifulSoup, news_type: Publisher):
+        property_str = ''
+        if news_type == Publisher.HAN_KYUNG:
+            property_str = 'article:published'
+        else:
+            property_str = "article:published_time"
+        pub_date_element = soup.find("meta", property=property_str)
+        pub_date = pub_date_element["content"] if pub_date_element else "pub date not found"
+
+        if news_type == Publisher.HAN_KYUNG:
+            date_obj = datetime.fromisoformat(pub_date)
+            pub_date = date_obj.isoformat()
+        return pub_date
 
     def __find_title(self, soup: BeautifulSoup, news_type: Publisher) -> str:
         if news_type == Publisher.SEOUL_KYUNG:
