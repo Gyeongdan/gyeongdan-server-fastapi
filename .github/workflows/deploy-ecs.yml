@@ -141,7 +141,7 @@ jobs:
           channel-id: ${{ env.PROGRESS_SLACK_CHANNEL }}
           payload: |
             {
-              "text": ":white_check_mark: *Gyeongdan FastAPI ${{ github.ref_name }}* 배포가 성공했습니다.",
+              "text": ":pedro: *Gyeongdan FastAPI ${{ github.ref_name }}* 배포가 성공했습니다.",
               "blocks": [
                 {
                   "type": "section",
@@ -179,7 +179,7 @@ jobs:
           channel-id: ${{ env.PROGRESS_SLACK_CHANNEL }}
           payload: |
             {
-              "text": ":x: *Gyeongdan FastAPI ${{ github.ref_name }}* 배포가 실패했습니다.",
+              "text": ":typingcat: *Gyeongdan FastAPI ${{ github.ref_name }}* 배포가 실패했습니다.",
               "blocks": [
                 {
                   "type": "section",
