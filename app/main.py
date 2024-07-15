@@ -31,10 +31,10 @@ load_dotenv()
 app.add_middleware(LoggingMiddleware)
 
 # routers
-app.include_router(subscription_router)
-app.include_router(newsletter_article_router)
-app.include_router(send_email_service_router)
-app.include_router(user_type_router)
+app.include_router(subscription_router) 
+app.include_router(newsletter_article_router) 
+app.include_router(send_email_service_router) 
+app.include_router(user_type_router)  
 app.include_router(simple_article_router)
 app.include_router(chatbot_article_router)
 

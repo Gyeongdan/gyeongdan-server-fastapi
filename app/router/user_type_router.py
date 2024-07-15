@@ -26,7 +26,7 @@ async def get_questionnaire():
 
 
 @user_type_router.post("/user-type", response_model=GenericResponseDTO[int])
-async def create_subscription(
+async def create_user_type_by_answers(
     request: UserTypeQuestionnaireRequestDTO,
     session: AsyncSession = Depends(get_db_session),
 ):
