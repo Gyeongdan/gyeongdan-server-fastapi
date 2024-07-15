@@ -7,7 +7,9 @@ RUN apt-get update && \
     pip install --no-cache-dir pipenv
 
 COPY Pipfile Pipfile.lock ./
-RUN pipenv install --deploy --ignore-pipfile
+RUN pipenv install --deploy --ignore-pipfile && \
+    pipenv run pip uninstall -y lightfm && \
+    pipenv run pip install lightfm --no-binary lightfm
 
 RUN apt-get purge -y --auto-remove gcc && \
     rm -rf /var/lib/apt/lists/*
