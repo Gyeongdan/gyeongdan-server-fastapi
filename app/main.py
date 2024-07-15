@@ -1,7 +1,4 @@
 import asyncio
-import warnings
-
-warnings.filterwarnings("ignore", category=UserWarning, module="lightfm")
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
