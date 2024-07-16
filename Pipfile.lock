@@ -2,6 +2,7 @@
     "_meta": {
         "hash": {
             "sha256": "79d44a1a99c2c3499ab6f824c498a5e1fda1be281d5c0c41b7541b9bb56639b0"
+
         },
         "pipfile-spec": 6,
         "requires": {
@@ -994,11 +995,11 @@
         },
         "langchain-core": {
             "hashes": [
-                "sha256:13043a83e5c9ab58b9f5ce2a56896e7e88b752e8891b2958960a98e71801471e",
-                "sha256:5b3cd34395be274c89e822c84f0e03c4da14168c177a83921c5b9414ac7a0651"
+                "sha256:c9dbb197508e76337ed810ec977d40ae0c896397d191b420ef126c3818a1be96",
+                "sha256:ca5c5f1a783449dae8686e366ff3c5b775f8b5cef0de4ef346b8820d3d1c46ff"
             ],
             "markers": "python_version < '4.0' and python_full_version >= '3.8.1'",
-            "version": "==0.2.19"
+            "version": "==0.2.18"
         },
         "langchain-google-community": {
             "hashes": [
@@ -2175,14 +2176,6 @@
             ],
             "markers": "python_version >= '3.8'",
             "version": "==8.3.0"
-        },
-        "threadpoolctl": {
-            "hashes": [
-                "sha256:082433502dd922bf738de0d8bcc4fdcbf0979ff44c42bd40f5af8a282f6fa107",
-                "sha256:56c1e26c150397e58c4926da8eeee87533b1e32bef131bd4bf6a2f45f3185467"
-            ],
-            "markers": "python_version >= '3.8'",
-            "version": "==3.5.0"
         },
         "tiktoken": {
             "hashes": [

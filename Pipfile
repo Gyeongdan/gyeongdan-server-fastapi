@@ -33,6 +33,7 @@ wikipedia-api = "*"
 plotly = "*"
 implicit = "*"
 
+
 [dev-packages]
 flake8 = "*"
 black = "*"
