@@ -105,14 +105,14 @@ class UserTypeService:
             ],
             [
                 "기술과 경제의 결합에 대해 얼마나 잘 이해하고 있습니까?",
-                ["매우 잘 이해한다.", 10, UserTypes.TECH_SEPCIALIST.value['id']],
-                ["다소 이해한다.", 5, UserTypes.TECH_SEPCIALIST.value['id']],
+                ["매우 잘 이해한다.", 10, UserTypes.TECH_SPECIALIST.value['id']],
+                ["다소 이해한다.", 5, UserTypes.TECH_SPECIALIST.value['id']],
                 ["잘 모른다.", 0, UserTypes.NONE.value['id']],
             ],
             [
                 "기술 발전이 경제에 미치는 영향에 대해 얼마나 알고 있습니까?",
-                ["깊이 있는 지식이 있다. ", 10, UserTypes.TECH_SEPCIALIST.value['id']],
-                ["일반적인 이해만 한다. ", 5, UserTypes.TECH_SEPCIALIST.value['id']],
+                ["깊이 있는 지식이 있다. ", 10, UserTypes.TECH_SPECIALIST.value['id']],
+                ["일반적인 이해만 한다. ", 5, UserTypes.TECH_SPECIALIST.value['id']],
                 ["잘 모른다.", 0, UserTypes.NONE.value['id']],
             ],
             [
@@ -156,7 +156,7 @@ class UserTypeService:
                     UserTypes.LIFESTYLE_CONSUMER.value['id']
                 ],
                 user_type_entertainer=user_types[UserTypes.ENTERTAINER.value['id']],
-                user_type_tech_specialist=user_types[UserTypes.TECH_SEPCIALIST.value['id']],
+                user_type_tech_specialist=user_types[UserTypes.TECH_SPECIALIST.value['id']],
                 user_type_professionals=user_types[UserTypes.PROFESSIONALS.value['id']],
                 user_type=user_type_enum.value['name']
             ),
