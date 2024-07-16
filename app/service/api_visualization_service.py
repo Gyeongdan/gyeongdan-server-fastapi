@@ -1,6 +1,8 @@
 # api_visualization_router.py
 # pylint: disable=R0914
 # pylint: disable=R0911
+# pylint: disable=C0206
+from enum import Enum
 from typing import List
 
 import pandas as pd
@@ -19,7 +21,18 @@ from app.repository.api_visualization_crud import (
 from app.service.public_data_api_service import PublicDataAPI, PublicDataAPIService
 from app.utils.json_parser import parse
 
-# from sqlalchemy.ext.asyncio import AsyncSession
+
+# data의 이름이 다를 때 관리하는 class
+class APIDataEnum(Enum):
+    JINJU_COVID = ("진주 코비드", "data")
+    SKELETON = ("???", "skeleton")
+
+    @classmethod
+    def get_variable(cls, api_data_value):
+        for item in cls:
+            if item.value[0] == api_data_value:
+                return item.value[1]
+        raise ValueError(f"No matching variable for API data value: {api_data_value}")
 
 
 # 기본적인 친구들
@@ -107,11 +120,9 @@ class GraphService:
             df = await self.apply_preprocessing(df, preprocessing_steps)
 
         # 그래프 종류는 우선 5가지로 정했습니다.
-        # 막대그래프, 선그래프, 원형 그래프, 히스토그램, 점산도 그래프
         # 확장과 수정이 용이하게 적었습니다.
-        # 이 코드가 과연 필요한가...
         new_kwargs = {}
-        for graph_material in kwargs.items():
+        for graph_material in kwargs:
             if graph_material in self.safe_plotly_kwargs:
                 new_kwargs[graph_material] = kwargs[graph_material]
         if graph_type == "bar":
@@ -283,12 +294,13 @@ class GraphService:
 
         return ai_result
 
-    async def get_api_data(self, api_data: PublicDataAPI):
+    async def get_api_data(self, api_data):
         temp = PublicDataAPIService()
-        data_in_list = parse(await temp.response(api_data.value))
+        # 이게 아마 "진주 코비드"라고 들어올거야.
+        data_in_list = parse(await temp.response(api_data))
 
-        # 값에 따라 바꿔줘야 함!
-        df = pd.DataFrame(data_in_list["data"])
+        data_type = APIDataEnum.get_variable("진주 코비드")
+        df = pd.DataFrame(data_in_list[data_type])
         print(df)
         # 값을 가져오지 못했을 때를 위하여
         if df.empty:
@@ -326,6 +338,6 @@ async def create_article(
     return await repository.create_article(
         title=title,
         graph_html=html_str,
-        content=ai_result["article"],
+        content=ai_result["article"]["body"],
         session=session,
     )
