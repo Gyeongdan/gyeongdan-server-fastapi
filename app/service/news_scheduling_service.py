@@ -80,14 +80,12 @@ async def run_crawl_and_store(session: AsyncSession):
     else:
         logger.info("No new articles")
 
-    new_exist_articles = await ArticleManageService().get_all_articles(session=session)
-
     recommend_service = RecommendService()
     await recommend_service.initialize_data(session=session)
     recommend_service.fit_model()
-    for user_id in range(20):
+    for user_id in range(10):
         await recommend_service.get_recommend_articles(
-            user_id, session=session
+            classification_id=user_id, session=session
         )
 
 
