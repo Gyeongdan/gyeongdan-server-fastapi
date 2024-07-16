@@ -31,6 +31,8 @@ langchain-openai = "*"
 langchain-google-community = "*"
 wikipedia-api = "*"
 plotly = "*"
+implicit = "*"
+
 
 [dev-packages]
 flake8 = "*"
