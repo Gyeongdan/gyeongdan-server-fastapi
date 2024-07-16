@@ -8,6 +8,7 @@ from app.database.repository import Base
 
 class Interaction(Base):
     __tablename__ = "interactions"
+    __table_args__ = {"schema": "gyeongdan"}
 
     id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
     classification_id = Column(BigInteger)

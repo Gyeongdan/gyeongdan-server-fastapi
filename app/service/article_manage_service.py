@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.model.article_publisher import Publisher
@@ -16,6 +17,8 @@ class ArticleManageService:
         simple_content: str,
         phrase: dict,
         comment: str,
+        image_url: str,
+        published_at: str,
         category: MailTypeCategory,
         session: AsyncSession,
     ) -> Articles:
@@ -28,6 +31,8 @@ class ArticleManageService:
                 simple_title=simple_title,
                 simple_content=simple_content,
                 comment=comment,
+                published_at=datetime.strptime(published_at, '%Y-%m-%dT%H:%M:%S'),
+                image_url=image_url,
                 category=category.name,
                 phrase=phrase,
                 probability_issue_finder=-1
