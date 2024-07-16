@@ -6,7 +6,7 @@ from app.database.repository import Base
 
 
 class ApiVisualization(Base):
-    __tablename__ = "newsletter_article"
+    __tablename__ = "api_visualization"
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)  # 고유 식별자
     title = Column(String, nullable=False)  # 제목
