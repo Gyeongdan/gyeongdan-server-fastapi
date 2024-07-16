@@ -82,20 +82,13 @@ async def run_crawl_and_store(session: AsyncSession):
 
     new_exist_articles = await ArticleManageService().get_all_articles(session=session)
 
-    # 새로운 기사들만 필터링
-    new_articles_id = [
-        article.id
-        for article in new_exist_articles
-        if article.probability_issue_finder == -1
-    ]
     recommend_service = RecommendService()
     await recommend_service.initialize_data(session=session)
     recommend_service.fit_model()
-    if new_articles:
-        for article_id in new_articles_id:
-            await recommend_service.get_classification_for_article(
-                article_id=article_id, session=session
-            )
+    for user_id in range(20):
+        await recommend_service.get_recommend_articles(
+            user_id, session=session
+        )
 
 
 async def schedule_task():
