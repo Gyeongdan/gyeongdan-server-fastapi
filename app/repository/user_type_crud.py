@@ -27,15 +27,15 @@ class UserTypeRepository:
         return await repository.update_by_pk(
             pk=id,
             data={
-                "user_type_issue_finder": user_types[UserTypes.ISSUE_FINDER.value],
+                "user_type_issue_finder": user_types[UserTypes.ISSUE_FINDER.value['id']],
                 "user_type_lifestyle_consumer": user_types[
-                    UserTypes.LIFESTYLE_CONSUMER.value
+                    UserTypes.LIFESTYLE_CONSUMER.value['id']
                 ],
-                "user_type_entertainer": user_types[UserTypes.ENTERTAINER.value],
+                "user_type_entertainer": user_types[UserTypes.ENTERTAINER.value['id']],
                 "user_type_tech_specialist": user_types[
-                    UserTypes.TECH_SEPCIALIST.value
+                    UserTypes.TECH_SPECIALIST.value['id']
                 ],
-                "user_type_professionals": user_types[UserTypes.PROFESSIONALS.value],
+                "user_type_professionals": user_types[UserTypes.PROFESSIONALS.value['id']],
             },
         )
 
