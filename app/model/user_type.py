@@ -1,6 +1,6 @@
 from enum import Enum
 
-from sqlalchemy import BigInteger, Column, Integer
+from sqlalchemy import BigInteger, Column, Integer, Text
 
 from app.database.repository import Base
 
@@ -15,12 +15,20 @@ class UserType(Base):
     user_type_entertainer = Column(Integer, nullable=True)
     user_type_tech_specialist = Column(Integer, nullable=True)
     user_type_professionals = Column(Integer, nullable=True)
+    user_type = Column(Text, nullable=True)
 
 
 class UserTypes(Enum):
-    NONE= -1
-    ISSUE_FINDER= 0
-    LIFESTYLE_CONSUMER= 1
-    ENTERTAINER= 2
-    TECH_SEPCIALIST= 3
-    PROFESSIONALS= 4
+    NONE= {'id':-1,
+           'name':'NONE'
+           }
+    ISSUE_FINDER= {'id':0,
+                   'name':'ISSUE_FINDER'}
+    LIFESTYLE_CONSUMER= {'id':1,
+                         'name':'LIFESTYLE_CONSUMER'}
+    ENTERTAINER= {'id':2,
+                  'name':'ENTERTAINER'}
+    TECH_SEPCIALIST= {'id':3,
+                      'name':'TECH_SEPCIALIST'}
+    PROFESSIONALS= {'id':4,
+                    'name':'PROFESSIONALS'}
