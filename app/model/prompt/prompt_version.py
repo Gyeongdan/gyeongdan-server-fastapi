@@ -23,6 +23,7 @@ class PromptVersion(Enum):
     V_2024_07_02 = PromptInfo(version="2024-07-02", role=Role.SIMPLE_ARTICLE)
     V_2024_07_05 = PromptInfo(version="2024-07-05", role=Role.PUBLIC_DATA_API_ARTICLE)
     V_2024_07_10 = PromptInfo(version="2024-07-10", role=Role.GRAPHIC_ARTICLE)
+    V_2024_07_14 = PromptInfo(version="2024-07-14", role=Role.SIMPLE_ARTICLE)
 
     # newsletter article
     newsletter_article_2024_07_03 = PromptInfo(
