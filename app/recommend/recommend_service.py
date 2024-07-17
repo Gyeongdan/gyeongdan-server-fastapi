@@ -19,6 +19,29 @@ import implicit
 from app.service.user_type_service import UserTypeService
 
 
+async def user_type_to_classification_id(user_type) -> int:
+    target_features = [[user_type[0], UserTypes.ISSUE_FINDER],
+                       [user_type[1], UserTypes.LIFESTYLE_CONSUMER],
+                       [user_type[2], UserTypes.ENTERTAINER],
+                       [user_type[3], UserTypes.TECH_SPECIALIST],
+                       [user_type[4], UserTypes.PROFESSIONALS]]
+    target_features.sort(key=lambda x: x[0], reverse=True)
+    data = {
+        'classification_id': range(1, 11),
+        'ISSUE_FINDER':         [1, 1, 1, 1, 1, 1, 0, 0, 0, 0],
+        'LIFESTYLE_CONSUMER':   [1, 1, 1, 0, 0, 0, 1, 1, 1, 0],
+        'ENTERTAINER':          [1, 0, 0, 1, 1, 0, 1, 1, 0, 1],
+        'TECH_SPECIALIST':      [0, 1, 0, 1, 0, 1, 1, 0, 1, 1],
+        'PROFESSIONALS':        [0, 0, 1, 0, 1, 1, 0, 1, 1, 1]
+    }
+    df = pd.DataFrame(data)
+    filtered_df = df[
+        (df[target_features[0][1].value['name']] == 1) &
+        (df[target_features[1][1].value['name']] == 1) &
+        (df[target_features[2][1].value['name']] == 1)
+        ]
+    return (int)(filtered_df.iloc[0]['classification_id'])
+
 async def user_id_to_classification_id(user_id, session:AsyncSession) -> int:
     userType = await UserTypeService().get_user_type_by_id(user_id, session)
     target_features = [[userType.user_type_issue_finder, UserTypes.ISSUE_FINDER],
