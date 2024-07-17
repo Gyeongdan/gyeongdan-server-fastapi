@@ -3,7 +3,7 @@ FROM --platform=linux/amd64 python:3.11.4-slim-bookworm
 WORKDIR /app
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends gcc libpq-dev libatlas-base-dev && \
+    apt-get install -y --no-install-recommends gcc libpq-dev libatlas-base-dev libgomp1 && \
     pip install --no-cache-dir pipenv
 
 COPY Pipfile Pipfile.lock ./
