@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config.loguru_config import logger
 from app.database.session import db_session
 from app.model.article_publisher import Publisher
+from app.recommend.recommend_service import RecommendService
 from app.service.article_manage_service import ArticleManageService
 from app.service.simple_article_service import process_generate_article_by_url
 
