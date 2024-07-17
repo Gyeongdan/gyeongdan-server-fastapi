@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from starlette.exceptions import HTTPException
 
-from app.router.chatbot_article_detail_router import chatbot_article_router
+from app.router.chatbot_article_router import chatbot_article_router
 from app.config.exception_handler import exception_handler, http_exception_handler
 from app.config.middlewares.request_response_logging_middle_ware import (
     LoggingMiddleware,

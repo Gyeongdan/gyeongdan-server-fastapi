@@ -24,12 +24,6 @@ class Articles(Base):
     category = Column(CHAR(255), nullable=True)
     published_at = Column(DateTime, nullable=True)
     image_url = Column(String, nullable=True)
-    probability_issue_finder = Column(Integer, nullable=True)
-    probability_lifestyle_consumer = Column(Integer, nullable=True)
-    probability_entertainer = Column(Integer, nullable=True)
-    probability_tech_specialist = Column(Integer, nullable=True)
-    probability_professionals = Column(Integer, nullable=True)
-
 
 @event.listens_for(Articles, "before_update", propagate=True)
 def update_timestamp(mapper, connection, target):  # pylint: disable=unused-argument
