@@ -19,7 +19,7 @@ import implicit
 from app.service.user_type_service import UserTypeService
 
 
-async def user_id_to_classification_id(user_id, session:AsyncSession):
+async def user_id_to_classification_id(user_id, session:AsyncSession) -> int:
     userType = await UserTypeService().get_user_type_by_id(user_id, session)
     target_features = [[userType.user_type_issue_finder, UserTypes.ISSUE_FINDER],
                        [userType.user_type_lifestyle_consumer, UserTypes.LIFESTYLE_CONSUMER],
@@ -84,6 +84,8 @@ class RecommendService:
         self.num_articles = None
         self.user_item_matrix = None
         self.model = None
+        self.idx_to_id = dict()
+        self.id_to_idx = dict()
         self.user_data_path = "/./user_classification.csv"
 
     async def initialize_data(self, session):
@@ -97,7 +99,11 @@ class RecommendService:
         print(self.num_classifications)
 
     async def set_article_datas(self, session):
+
         articles = await ArticleManageService().get_all_articles(session=session)
+        for idx, article in enumerate(articles):
+            self.idx_to_id[idx] = article.id
+            self.id_to_idx[article.id] = idx
         self.num_articles = len(articles)
         print(self.num_articles)
 
@@ -109,8 +115,8 @@ class RecommendService:
         print(self.interaction_datas)
         self.user_item_matrix = csr_matrix((self.interaction_datas['duration_time'].tolist(),
                     (self.interaction_datas['classification_id'].tolist(),
-                     self.interaction_datas['article_id'].tolist()))
-                                           , shape=(self.num_classifications+1, self.num_articles+1))
+                     list(map(lambda x : self.id_to_idx[x], self.interaction_datas['article_id'].tolist()))))
+                                           , shape=(self.num_classifications+1, self.num_articles))
 
         self.user_item_matrix = (self.user_item_matrix > 0).astype(np.float32)
         print("Num users: {}, num_items {}.".format(self.num_classifications, self.num_articles))
@@ -135,7 +141,7 @@ class RecommendService:
     async def get_recommend_articles(self, classification_id: int, session: AsyncSession, N: int = 10):
         indices, scores = self.model.recommend(userid=classification_id, user_items=csr_matrix(self.user_item_matrix.toarray()[classification_id]), N=N)
         for i in range(N):
-            indices[i] += 1
+            indices[i] = self.idx_to_id[indices[i]]
 
         await RecommendRepository().update_recommend(id=classification_id+1, article_ids=indices, session=session)
 
