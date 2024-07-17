@@ -13,7 +13,6 @@ class ArticleRelatedDocumentService:
         )
 
         session.add(related_document)
-        await session.commit()
-        await session.refresh(related_document)
+        await session.flush()  # flush 호출로 영속화
 
         return related_document

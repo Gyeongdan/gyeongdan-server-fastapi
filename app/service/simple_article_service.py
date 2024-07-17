@@ -49,7 +49,7 @@ async def process_generate_article_by_url(
     ]:
         raise ValueError(f"유효하지 않은 카테고리입니다: {ai_result_dict.get('category')}")
 
-    ### 크롤링한 기사를 DB에 저장
+    #### 크롤링한 기사를 DB에 저장
     # JSON 객체인 ai_result를 simplified_article 객체로 변환
     simplified_article = SimplifiedArticle(**ai_result_dict)
     logger.info(f"객체로 변환하였음 : {simplified_article}")
@@ -73,23 +73,33 @@ async def process_generate_article_by_url(
         category=MailTypeCategory(ai_result_dict["category"]),
         session=session,
     )
-    logger.info("기사 저장 완료!!!!")
 
-    ### 크롤링한 기사에 관련된 문서들을 DB에 저장
+    #### 크롤링한 기사와 관련된 문서들을 DB에 저장
     # JSON 객체인 ai_result.related_documents를 related_documents 객체로 변환 및 저장
     related_documents_lst = ai_result.related_documents if hasattr(ai_result, 'related_documents') else []
-
     logger.info(f"related_documents_lst : {related_documents_lst}")
+
     # DB에 저장
     for doc in related_documents_lst:
+        # 관련된 문서들 중 원래 저장하려고 한 기사의 url과 같은 경우 저장하지 않음
+        related_document_url = doc.metadata.get("id", "URL 없음")
+        if related_document_url == url:
+            logger.info(f"Skipping related document with same URL: {related_document_url}")
+            continue
+
+        # 관련된 문서
         related_document = {
             "title": doc.metadata.get("title", "제목 없음"),
-            "link": doc.metadata.get("source", "URL 없음"),
+            "link": doc.metadata.get("id", "URL 없음"),
             "snippet": doc.page_content
         } if isinstance(doc, Document) else doc
 
+        logger.info(f"related_document to save: {related_document}")
+
         await ArticleRelatedDocumentService().save(article.id, related_document, session)
 
+    # 여러 문서를 저장한 후 한 번에 commit 호출
+    await session.commit()
     logger.info("기사와 관련된 것들 저장 완료!! ")
 
     return simplified_article
