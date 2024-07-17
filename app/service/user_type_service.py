@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from groq import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,7 +8,7 @@ from app.repository.user_type_crud import UserTypeRepository
 
 
 class UserTypeQuestionnaireRequestDTO(BaseModel):
-    id: int
+    id: Optional[int]
     answers: List[int]
 
 
@@ -128,6 +128,8 @@ class UserTypeService:
                 ["별로 읽거나 듣지 않는다.", 5, UserTypes.ENTERTAINER.value['id']],
             ],
         ]
+    def get_questionnaire_data(self):
+        return self.questionnaire_data
 
     async def get_questionnaire(self) -> List[UserTypeQuestionnaire]:
         questionnaires = set_user_type_questionnaire(self.questionnaire_data)
