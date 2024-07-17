@@ -5,11 +5,11 @@ from app.database.repository import Base
 
 class ArticleRelatedDocument(Base):
     __tablename__ = 'article_related_documents'
-
-    id = Column(Integer, primary_key=True, index=True)
-    article_id = Column(Integer, ForeignKey('articles.id', ondelete='CASCADE'))
-    title = Column(String, index=True)
-    link = Column(String)
+    __table_args__ = {'schema': 'gyeongdan'}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    article_id = Column(Integer, ForeignKey('gyeongdan.articles.id', ondelete='CASCADE'))
+    title = Column(String(255), nullable=False)
+    link = Column(String(255), default='URL 없음')
     snippet = Column(Text)
 
     article = relationship("Articles", back_populates="related_documents")
