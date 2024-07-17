@@ -70,8 +70,8 @@ async def create_user_type_by_answers(
         temp_article = await CrawledArticleRepository().get(pk=id, session=session)
         recommendNews.append(ArticleResponseDTO(
             id=id,
-            title=temp_article.title,
-            content=temp_article.content,
+            title=temp_article.simple_title,
+            content=temp_article.simple_content,
             pubDate=temp_article.published_at.strftime("%Y-%m-%d"),
             image=temp_article.image_url
         ))
