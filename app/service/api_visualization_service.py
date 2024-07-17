@@ -1,19 +1,72 @@
-# api_visualization_service.py
+# api_visualization_router.py
+# pylint: disable=R0911
+# pylint: disable=C0206
+# pylint: disable=C0327
+from enum import Enum
+from typing import List
 
 import pandas as pd
 import plotly.express as px
+import plotly.io as pio
+from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.model.ai_client.ai_client import LLMModel
 from app.model.ai_client.get_platform_client import get_platform_client
 from app.model.prompt.prompt_version import PromptVersion, get_system_prompt
+from app.repository.api_visualization_crud import (
+    ApiVisualization,
+    ApiVisualizationRepository,
+)
+from app.service.public_data_api_service import PublicDataAPI, PublicDataAPIService
 from app.utils.json_parser import parse
 
-# from sqlalchemy.ext.asyncio import AsyncSession
+
+# data의 이름이 다를 때 관리하는 class
+class APIDataEnum(Enum):
+    JINJU_COVID = ("진주 코비드", "data")
+    SKELETON = ("???", "skeleton")
+
+    @classmethod
+    def get_variable(cls, api_data_value):
+        for item in cls:
+            if item.value[0] == api_data_value:
+                return item.value[1]
+        raise ValueError(f"No matching variable for API data value: {api_data_value}")
+
+
+# 기본적인 친구들
+class ApiVisualizationService:
+    async def create_article(
+        self, title: str, content: str, graph_html: str, session: AsyncSession
+    ) -> ApiVisualization:
+        return await ApiVisualizationRepository().create(
+            api_article=ApiVisualization(
+                title=title, content=content, graph_html=graph_html
+            ),
+            session=session,
+        )
+
+    async def get_by_id(self, id: int, session: AsyncSession) -> ApiVisualization:
+        return await ApiVisualizationRepository().get_by_id(pk=id, session=session)
+
+    async def get_all(self, session: AsyncSession) -> List[ApiVisualization]:
+        return await ApiVisualizationRepository().get_all(session=session)
+
+    async def update_content(self, id: int, content: str, session: AsyncSession):
+        return await ApiVisualizationRepository().update_content(
+            content=content, id=id, session=session
+        )
+
+    async def update_graph(self, id: int, graph_html: str, session: AsyncSession):
+        return await ApiVisualizationRepository().update_graph(
+            id=id, graph_html=graph_html, session=session
+        )
 
 
 class GraphService:
     # dataset을 기본으로 가지고 있는 class입니다.
-    def __init__(self, dataset):
+    def __init__(self, dataset=None):
         self.dataset = dataset
         # 함수가 외부에서 들어온 함수를 사용합니다. 그래서 위험할 수 있어서 safe 부분을 만듭니다.
         # 넓이와 높이는 아예 고정으로 갈 수도 있으니 생각하기
@@ -26,6 +79,21 @@ class GraphService:
             "template",
             "width",
             "height",
+            "text_auto",
+            "text",
+            "hover_data",
+            "animation_frame",
+            "animation_group",
+            "size",
+            "symbol",
+            "trendline",
+            "histfunc",
+            "markers",
+            "geojson",
+            "featureidkey",
+            "hover_name",
+            "color_continuous_scale",
+            "fitbounds",
         }
         self.safe_pandas_params = {
             "melt": {"id_vars", "value_vars"},
@@ -39,6 +107,7 @@ class GraphService:
             "replace": {"to_replace", "value"},
             "merge": {"on", "how"},
             "sort": {"by", "ascending"},
+            "reset_index": {},
         }
 
     # 그래프 그리는 함수
@@ -51,21 +120,25 @@ class GraphService:
             df = await self.apply_preprocessing(df, preprocessing_steps)
 
         # 그래프 종류는 우선 5가지로 정했습니다.
-        # 막대그래프, 선그래프, 원형 그래프, 히스토그램, 점산도 그래프
         # 확장과 수정이 용이하게 적었습니다.
+        new_kwargs = {}
         for graph_material in kwargs:
-            if graph_material not in self.safe_plotly_kwargs:
-                raise ValueError("Not safe type")
+            if graph_material in self.safe_plotly_kwargs:
+                new_kwargs[graph_material] = kwargs[graph_material]
         if graph_type == "bar":
-            return await self.plot_bar(df, x, y, **kwargs)
+            return await self.plot_bar(df, x, y, **new_kwargs)
         if graph_type == "line":
-            return await self.plot_line(df, x, y, **kwargs)
+            return await self.plot_line(df, x, y, **new_kwargs)
         if graph_type == "pie":
-            return await self.plot_pie(df, x, y, **kwargs)
+            return await self.plot_pie(df, x, y, **new_kwargs)
         if graph_type == "histogram":
-            return await self.plot_histogram(df, x, None, **kwargs)
+            return await self.plot_histogram(df, x, None, **new_kwargs)
         if graph_type == "scatter":
-            return await self.plot_scatter(df, x, y, **kwargs)
+            return await self.plot_scatter(df, x, y, **new_kwargs)
+        if graph_type == "choropleth":
+            return await self.plot_choropleth(df, x, y, **new_kwargs)
+        if graph_type == "funnel":
+            return await self.plot_funnel(df, x, y, **new_kwargs)
 
     # 전처리 작업이 필요한 경우 사용합니다.
     async def apply_preprocessing(self, df, steps):
@@ -79,7 +152,6 @@ class GraphService:
                     for k, v in params.items()
                     if k in self.safe_pandas_params[step_type]
                 }
-                print(filtered_params)
                 # 비어있으면 제끼기
                 if not filtered_params:
                     continue
@@ -104,132 +176,61 @@ class GraphService:
         return df
 
     # 그래프 그리기 함수들
-    async def plot_bar(
-        self,
-        df,
-        x,
-        y,
-        title="",
-        color=None,
-        labels=None,
-        template=None,
-        width=800,
-        height=600,
-        barmode="relative",
-    ):
-        fig = px.bar(
-            df,
-            x=x,
-            y=y,
-            title=title,
-            color=color,
-            labels=labels,
-            template=template,
-            width=width,
-            height=height,
-            barmode=barmode,
-        )
+    async def plot_bar(self, df, x, y, **kwargs):
+        if "text" not in kwargs:
+            kwargs["text_auto"] = True
+
+        fig = px.bar(df, x=x, y=y, **kwargs)
+        # slider 값이 들어왔을 때, 애니메이션 버튼 없애주는 친구
+        if "animation_frame" in kwargs:
+            fig["layout"].pop("updatemenus")
         return fig
 
-    async def plot_line(
-        self,
-        df,
-        x,
-        y,
-        title="",
-        color=None,
-        labels=None,
-        template=None,
-        width=800,
-        height=600,
-    ):
-        fig = px.line(
-            df,
-            x=x,
-            y=y,
-            title=title,
-            color=color,
-            labels=labels,
-            template=template,
-            width=width,
-            height=height,
-        )
+    async def plot_line(self, df, x, y, **kwargs):
+        fig = px.line(df, x=x, y=y, **kwargs)
+        # slider 값이 들어왔을 때, 애니메이션 버튼 없애주는 친구
+        if "animation_frame" in kwargs:
+            fig["layout"].pop("updatemenus")
         return fig
 
-    async def plot_pie(
-        self,
-        df,
-        names,
-        values,
-        title="",
-        color=None,
-        labels=None,
-        template=None,
-        width=800,
-        height=600,
-    ):
-        fig = px.pie(
-            df,
-            names=names,
-            values=values,
-            title=title,
-            color=color,
-            labels=labels,
-            template=template,
-            width=width,
-            height=height,
-        )
+    async def plot_pie(self, df, names, values, **kwargs):
+        fig = px.pie(df, names=names, values=values, **kwargs)
         return fig
 
     # 통일성을 위해 y를 주긴 하지만, 사용하지 않습니다.
-    async def plot_histogram(
-        self,
-        df,
-        x,
-        y=None,
-        title="",
-        color=None,
-        labels=None,
-        template=None,
-        width=800,
-        height=600,
-    ):
-        fig = px.histogram(
-            df,
-            x=x,
-            y=y,
-            title=title,
-            color=color,
-            labels=labels,
-            template=template,
-            width=width,
-            height=height,
-        )
+    async def plot_histogram(self, df, x, y=None, **kwargs):
+        fig = px.histogram(df, x=x, y=y, **kwargs)
+        # slider 값이 들어왔을 때, 애니메이션 버튼 없애주는 친구
+        if "animation_frame" in kwargs:
+            fig["layout"].pop("updatemenus")
         return fig
 
-    async def plot_scatter(
-        self,
-        df,
-        x,
-        y,
-        title="",
-        color=None,
-        labels=None,
-        template=None,
-        width=800,
-        height=600,
-    ):
-        fig = px.scatter(
-            df,
-            x=x,
-            y=y,
-            title=title,
-            color=color,
-            labels=labels,
-            template=template,
-            width=width,
-            height=height,
-        )
+    async def plot_scatter(self, df, x, y, **kwargs):
+        fig = px.scatter(df, x=x, y=y, **kwargs)
+        # slider 값이 들어왔을 때, 애니메이션 버튼 없애주는 친구
+        if "animation_frame" in kwargs:
+            fig["layout"].pop("updatemenus")
+
+        return fig
+
+    async def plot_choropleth(self, df, locations, color, **kwargs):
+        fig = px.choropleth(data_frame=df, locations=locations, color=color, **kwargs)
+
+        # slider 값이 들어왔을 때, 애니메이션 버튼 없애주는 친구
+        if "animation_frame" in kwargs:
+            fig["layout"].pop("updatemenus")
+
+        # 안보일 수 있어서 보이게 하는 친구
+        fig.update_geos(fitbounds="locations", visible=False)
+
+        return fig
+
+    async def plot_funnel(self, df, x, y, **kwargs):
+        fig = px.funnel(data_frame=df, x=x, y=y, **kwargs)
+
+        if "animation_frame" in kwargs:
+            fig["layout"].pop("updatemenus")
+
         return fig
 
     # 전처리 함수들
@@ -259,7 +260,8 @@ class GraphService:
 
     # col 가져오기
     async def show_col(self):
-        return list(self.dataset.columns)
+        # head를 넘겨주자.
+        return [self.dataset.columns.tolist()] + self.dataset.head().values.tolist()
 
     # session을 쓸 수도 있어서 남겨 놓겠습니다!
     async def graph_info(
@@ -275,9 +277,11 @@ class GraphService:
 
         if summary is None:
             col_list = await self.show_col()
-            request_text = ",".join(col_list) + "\n" + title
+            # 수정
+            request_text = "summary:" + str(col_list) + "\n" + "title:" + title
 
-        request_text = summary + "\n" + title
+        else:
+            request_text = summary + "\n" + title
 
         ai_result = parse(
             await ai_client.request(
@@ -289,3 +293,54 @@ class GraphService:
         )
 
         return ai_result
+
+    async def get_api_data(self, api_data):
+        temp = PublicDataAPIService()
+        data_in_list = parse(await temp.response(api_data))
+
+        data_type = APIDataEnum.get_variable("진주 코비드")
+        df = pd.DataFrame(data_in_list[data_type])
+        print(df)
+        # 값을 가져오지 못했을 때를 위하여
+        if df.empty:
+            print("df가 제대로 없는 경우")
+            return 0
+        self.dataset = df
+        return 1
+
+
+async def create_article(
+    title: str, data: PublicDataAPI, user_input: bool, session: AsyncSession
+):
+    graph_service = GraphService()
+    if not await graph_service.get_api_data(data):
+        raise HTTPException(status_code=400, detail="Couldn't get data")
+
+    ai_result = await graph_service.graph_info(title=title)
+
+    fig = await graph_service.plot_graph(
+        ai_result["graph_type"],
+        ai_result["x_value"],
+        ai_result["y_value"],
+        ai_result["preprocessing_steps"],
+        **ai_result["kwargs"],
+    )
+
+    # html 다 만든 것
+    html_str = pio.to_html(fig, full_html=True)
+
+    # 둘 다 html_str은 뱉는 걸로.
+    # return이 두 개입니다.
+    if user_input:
+        return html_str, ""
+        # 기사를 만드는 경우는 저장을 한다!
+
+    repository = ApiVisualizationService()
+    content = ai_result["article"]["body"]
+    await repository.create_article(
+        title=title,
+        graph_html=html_str,
+        content=content,
+        session=session,
+    )
+    return html_str, content
