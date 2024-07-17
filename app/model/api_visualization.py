@@ -15,4 +15,4 @@ class ApiVisualization(Base):
     title = Column(String, nullable=False)  # 제목
     content = Column(Text, nullable=False)  # 본문
     graph_html = Column(Text, nullable=False)  # html 데이터
-    create_at = Column(DateTime, default=datetime.now, nullable=False)
+    created_at = Column(DateTime, default=datetime.now, nullable=False)
