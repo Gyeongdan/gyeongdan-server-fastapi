@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.model.article_publisher import find_publisher
@@ -35,13 +37,16 @@ async def process_generate_article_by_url(
     if not ai_result.get("comment") or not ai_result["comment"].strip():
         raise ValueError("댓글이 비어 있거나 누락되었습니다")
     if ai_result.get("category") not in [
-        category.value for category in MailTypeCategory
+        category.name for category in MailTypeCategory
     ]:
         raise ValueError(f"유효하지 않은 카테고리입니다: {ai_result.get('category')}")
 
     # JSON 객체인 ai_result를 simplified_article 객체로 변환
 
     simplified_article = SimplifiedArticle(**ai_result)
+    published_at_datetime = datetime.fromisoformat(request_text.pub_date).replace(
+        tzinfo=None
+    )
     # DB에 저장
     await ArticleManageService().create_article(
         url=url,
@@ -52,7 +57,7 @@ async def process_generate_article_by_url(
         simple_content=simplified_article.content,
         phrase=simplified_article.phrase,
         comment=simplified_article.comment,
-        published_at=request_text.pub_date,
+        published_at=published_at_datetime,
         image_url=request_text.image_url,
         category=MailTypeCategory(ai_result["category"]),
         session=session,
