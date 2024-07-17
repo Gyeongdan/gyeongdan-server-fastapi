@@ -27,7 +27,7 @@ class ApiVisualResponseDTO(BaseModel):
     title: str
     content: str
     html_data: str
-    create_at: datetime
+    created_at: datetime
 
 
 # 대충 이렇게 해놓고 모델 이런 거 만들어야 겠다.
@@ -50,7 +50,9 @@ async def api_visualization_article(
         content = "user_input"
 
     return GenericResponseDTO[ApiVisualResponseDTO](
-        data=ApiVisualResponseDTO(title=title, content=content, html_data=html_data),
+        data=ApiVisualResponseDTO(
+            title=title, content=content, html_data=html_data, created_at=datetime.now()
+        ),
         message="Successfully created article done.",
         result=True,
     )
@@ -69,7 +71,7 @@ async def get_api_visualization_article(
             title=data.title,
             content=data.content,
             html_data=data.graph_html,
-            create_at=data.create_at,
+            created_at=data.created_at,
         ),
         message="Successfully 'get' done.",
         result=True,
