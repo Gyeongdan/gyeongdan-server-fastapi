@@ -1,6 +1,8 @@
 # api_visualization.py
 
-from sqlalchemy import BigInteger, Column, String, Text
+from datetime import datetime
+
+from sqlalchemy import BigInteger, Column, DateTime, String, Text
 
 from app.database.repository import Base
 
@@ -13,3 +15,4 @@ class ApiVisualization(Base):
     title = Column(String, nullable=False)  # 제목
     content = Column(Text, nullable=False)  # 본문
     graph_html = Column(Text, nullable=False)  # html 데이터
+    created_at = Column(DateTime, default=datetime.now, nullable=False)
