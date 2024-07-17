@@ -1,26 +1,30 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
-from app.service.chatbot_article_detail_service import request_rag_applied_openai
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.database.session import get_db_session
+from app.service.chatbot_article_service import request_rag_applied_openai
 from app.utils.generic_response import GenericResponseDTO
 
 chatbot_article_router = APIRouter()
 
 # 사용자 요청
 class GenerateDetailArticleRequestDTO(BaseModel):
-    news_content: str
+    id : int
     prompt: str
 
 
 @chatbot_article_router.post(
-    "/chatbot-article-detail", response_model=GenericResponseDTO
+    "/chatbot/article", response_model=GenericResponseDTO
 )
 async def chatbot_article_detail_(
         request: GenerateDetailArticleRequestDTO,
+        session: AsyncSession = Depends(get_db_session)
 ):
     rag_applied_result = await request_rag_applied_openai(
-        original_text=request.news_content,
-        system_prompt=request.prompt
+        news_id =request.id,
+        system_prompt=request.prompt,
+        session = session
     )
 
     return GenericResponseDTO(
