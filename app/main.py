@@ -9,7 +9,7 @@ from app.config.middlewares.request_response_logging_middle_ware import (
     LoggingMiddleware,
 )
 from app.router.api_visualization_router import api_visualization_router
-from app.router.chatbot_article_detail_router import chatbot_article_router
+from app.router.chatbot_article_router import chatbot_article_router
 from app.router.generate_simple_article_router import simple_article_router
 from app.router.send_email_service_router import send_email_service_router
 from app.router.user_type_router import user_type_router
