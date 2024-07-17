@@ -35,11 +35,7 @@ async def request_rag_applied_openai(
     )
 
     # Step 1: Google Custom Search API를 사용하여 관련 정보 수집
-    google_results = await google_cse_retriever.retrieve(
-        original_text
-    )  # FIXME: 왜 GoogleCSERetriever를 사용하는가? # pylint: disable=fixme
-    if not google_results:
-        raise HTTPException(status_code=404, detail="No results found from Google.")
+    google_results = await google_cse_retriever.retrieve(original_text)
 
     # Step 2: 검색 결과를 벡터화하고 ChromaDB에 저장
     chroma_db_manager = ChromaDBManager()
@@ -50,9 +46,12 @@ async def request_rag_applied_openai(
     additional_info = await search.aget_relevant_documents(original_text, num_results=3)
 
     # Step 4: 프롬프트 생성(원문 + 검색 결과 + 추가 정보)
-    rag_applied_prompt = await create_rag_applied_prompt(
-        original_prompt=system_prompt, relevant_info=search_results + additional_info
-    )
+    rag_applied_prompt = system_prompt
+    if search_results:
+        rag_applied_prompt = await create_rag_applied_prompt(
+            original_prompt=system_prompt,
+            relevant_info=search_results + additional_info,
+        )
 
     # Step 5: OpenAI 요청 결과 반환
     try:
