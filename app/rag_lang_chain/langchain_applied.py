@@ -6,6 +6,7 @@ from fastapi import HTTPException
 from langchain.schema import Document
 from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
+from pydantic.v1 import BaseModel
 
 from app.config.loguru_config import logger
 from app.rag_lang_chain.chromadb_manager import ChromaDBManager
@@ -15,9 +16,9 @@ from app.rag_lang_chain.google_cse_retriver import (
 )
 
 
-class RagAppliedResult:
+class RagAppliedResult(BaseModel):
     result_text: str
-    related_documents: List[Union[Document, dict]]
+    related_documents: List[Document]
 
 
 async def request_rag_applied_openai(
@@ -34,11 +35,7 @@ async def request_rag_applied_openai(
     )
 
     # Step 1: Google Custom Search API를 사용하여 관련 정보 수집
-    google_results = await google_cse_retriever.retrieve(
-        original_text
-    )  # FIXME: 왜 GoogleCSERetriever를 사용하는가? # pylint: disable=fixme
-    if not google_results:
-        raise HTTPException(status_code=404, detail="No results found from Google.")
+    google_results = await google_cse_retriever.retrieve(original_text)
 
     # Step 2: 검색 결과를 벡터화하고 ChromaDB에 저장
     chroma_db_manager = ChromaDBManager()
@@ -49,14 +46,17 @@ async def request_rag_applied_openai(
     additional_info = await search.aget_relevant_documents(original_text, num_results=3)
 
     # Step 4: 프롬프트 생성(원문 + 검색 결과 + 추가 정보)
-    rag_applied_prompt = await create_rag_applied_prompt(
-        original_prompt=system_prompt, relevant_info=search_results + additional_info
-    )
+    rag_applied_prompt = system_prompt
+    if search_results:
+        rag_applied_prompt = await create_rag_applied_prompt(
+            original_prompt=system_prompt,
+            relevant_info=search_results + additional_info,
+        )
 
     # Step 5: OpenAI 요청 결과 반환
     try:
         search_llm = ChatOpenAI(
-            temperature=0, model="gpt-4", max_tokens=1500, api_key=openai_api_key
+            temperature=0, model="gpt-4o", max_tokens=1500, api_key=openai_api_key
         )
         response = await search_llm.agenerate(
             messages=[[HumanMessage(rag_applied_prompt)]]
@@ -70,11 +70,9 @@ async def request_rag_applied_openai(
 
     logger.info(f"Response: {response.generations[0][0].text}")
 
-    # response.generations[0][0].text
-
     return RagAppliedResult(
         result_text=response.generations[0][0].text,
-        related_documents=search_results + additional_info,
+        related_documents=search_results,
     )
 
 

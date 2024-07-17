@@ -2,9 +2,10 @@ FROM --platform=linux/amd64 python:3.11.4-slim-bookworm
 
 WORKDIR /app
 
+# 필요한 시스템 패키지 설치 (libgomp 포함)
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends gcc libpq-dev libatlas-base-dev && \
-    pip install --no-cache-dir pipenv \
+    apt-get install -y --no-install-recommends gcc libpq-dev libatlas-base-dev libgomp1 && \
+    pip install --no-cache-dir pipenv
 
 COPY Pipfile Pipfile.lock ./
 RUN pipenv install --deploy --ignore-pipfile
