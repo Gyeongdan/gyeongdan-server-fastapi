@@ -88,7 +88,6 @@ async def run_crawl_and_store(session: AsyncSession):
         )
 
 
-
 async def schedule_task():
     while True:
         now = datetime.now()

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from langchain.schema import Document
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -37,13 +39,16 @@ async def process_generate_article_by_url(
     if not ai_result_text.get("comment") or not ai_result_text["comment"].strip():
         raise ValueError("댓글이 비어 있거나 누락되었습니다")
     if ai_result_text.get("category") not in [
-        category.value for category in MailTypeCategory
+        category.name for category in MailTypeCategory
     ]:
         raise ValueError(f"유효하지 않은 카테고리입니다: {ai_result_text.get('category')}")
 
     ### 크롤링한 기사를 DB에 저장
     # JSON 객체인 ai_result를 simplified_article 객체로 변환
     simplified_article = SimplifiedArticle(**ai_result_text)
+    published_at_datetime = datetime.fromisoformat(request_text.pub_date).replace(
+        tzinfo=None
+    )
     # DB에 저장
     article = await ArticleManageService().create_article(url=url, publisher=find_publisher(publisher),
                                                            title=request_text.title, content=request_text.content,
@@ -55,6 +60,20 @@ async def process_generate_article_by_url(
                                                            image_url=request_text.image_url,
                                                            category=MailTypeCategory(ai_result_text["category"]),
                                                            session=session, )
+    await ArticleManageService().create_article(
+        url=url,
+        publisher=find_publisher(publisher),
+        title=request_text.title,
+        content=request_text.content,
+        simple_title=simplified_article.title,
+        simple_content=simplified_article.content,
+        phrase=simplified_article.phrase,
+        comment=simplified_article.comment,
+        published_at=published_at_datetime,
+        image_url=request_text.image_url,
+        category=MailTypeCategory(ai_result["category"]),
+        session=session,
+    )
 
 
     ### 크롤링한 기사에 관련된 문서들을 DB에 저장
