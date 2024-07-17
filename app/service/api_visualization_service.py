@@ -1,7 +1,7 @@
 # api_visualization_router.py
-# pylint: disable=R0914
 # pylint: disable=R0911
 # pylint: disable=C0206
+# pylint: disable=C0327
 from enum import Enum
 from typing import List
 
@@ -296,7 +296,6 @@ class GraphService:
 
     async def get_api_data(self, api_data):
         temp = PublicDataAPIService()
-        # 이게 아마 "진주 코비드"라고 들어올거야.
         data_in_list = parse(await temp.response(api_data))
 
         data_type = APIDataEnum.get_variable("진주 코비드")
@@ -330,14 +329,18 @@ async def create_article(
     # html 다 만든 것
     html_str = pio.to_html(fig, full_html=True)
 
+    # 둘 다 html_str은 뱉는 걸로.
+    # return이 두 개입니다.
     if user_input:
-        # 유저의 통제시 그냥 html만 리턴!
-        return html_str
+        return html_str, ""
         # 기사를 만드는 경우는 저장을 한다!
+
     repository = ApiVisualizationService()
-    return await repository.create_article(
+    content = ai_result["article"]["body"]
+    await repository.create_article(
         title=title,
         graph_html=html_str,
-        content=ai_result["article"]["body"],
+        content=content,
         session=session,
     )
+    return html_str, content
