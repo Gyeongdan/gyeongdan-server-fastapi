@@ -298,7 +298,7 @@ class GraphService:
         temp = PublicDataAPIService()
         data_in_list = parse(await temp.response(api_data))
 
-        data_type = APIDataEnum.get_variable("진주 코비드")
+        data_type = APIDataEnum.get_variable(api_data)
         df = pd.DataFrame(data_in_list[data_type])
         print(df)
         # 값을 가져오지 못했을 때를 위하여
