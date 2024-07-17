@@ -20,6 +20,7 @@ class ApiVisualizationRepository:
             raise HTTPException(
                 status_code=404, detail="해당 순번이 존재하지 않습니다."
             )
+        return content
 
     async def get_all(self, session: AsyncSession):
         repository = get_repository(ApiVisualization)(session)
