@@ -32,7 +32,7 @@ langchain-google-community = "*"
 wikipedia-api = "*"
 plotly = "*"
 implicit = "*"
-
+threadpoolctl = "*"
 
 [dev-packages]
 flake8 = "*"
