@@ -1,10 +1,13 @@
 from datetime import datetime
 from typing import List
+
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.model.article_publisher import Publisher
 from app.model.crawled_article import Articles
 from app.model.subscription import MailTypeCategory
 from app.repository.crawled_article_crud import CrawledArticleRepository
+
 
 class ArticleManageService:
     async def create_article(
@@ -18,7 +21,7 @@ class ArticleManageService:
         phrase: dict,
         comment: str,
         image_url: str,
-        published_at: str,
+        published_at: datetime,
         category: MailTypeCategory,
         session: AsyncSession,
     ) -> Articles:
@@ -31,7 +34,7 @@ class ArticleManageService:
                 simple_title=simple_title,
                 simple_content=simple_content,
                 comment=comment,
-                published_at=datetime.strptime(published_at, '%Y-%m-%dT%H:%M:%S'),
+                published_at=published_at,
                 image_url=image_url,
                 category=category.name,
                 phrase=phrase,

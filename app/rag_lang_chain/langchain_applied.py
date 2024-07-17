@@ -6,6 +6,7 @@ from fastapi import HTTPException
 from langchain.schema import Document
 from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
+from pydantic.v1 import BaseModel
 
 from app.config.loguru_config import logger
 from app.rag_lang_chain.chromadb_manager import ChromaDBManager
@@ -15,9 +16,9 @@ from app.rag_lang_chain.google_cse_retriver import (
 )
 
 
-class RagAppliedResult:
+class RagAppliedResult(BaseModel):
     result_text: str
-    related_documents: List[Union[Document, dict]]
+    related_documents: List[Document]
 
 
 async def request_rag_applied_openai(
@@ -56,7 +57,7 @@ async def request_rag_applied_openai(
     # Step 5: OpenAI 요청 결과 반환
     try:
         search_llm = ChatOpenAI(
-            temperature=0, model="gpt-4", max_tokens=1500, api_key=openai_api_key
+            temperature=0, model="gpt-4o", max_tokens=1500, api_key=openai_api_key
         )
         response = await search_llm.agenerate(
             messages=[[HumanMessage(rag_applied_prompt)]]
@@ -70,11 +71,9 @@ async def request_rag_applied_openai(
 
     logger.info(f"Response: {response.generations[0][0].text}")
 
-    # response.generations[0][0].text
-
     return RagAppliedResult(
         result_text=response.generations[0][0].text,
-        related_documents=search_results + additional_info,
+        related_documents=search_results,
     )
 
 
