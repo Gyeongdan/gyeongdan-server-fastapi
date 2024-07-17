@@ -35,7 +35,6 @@ class ArticleManageService:
                 image_url=image_url,
                 category=category.name,
                 phrase=phrase,
-                probability_issue_finder=-1
             ),
             session=session,
         )
