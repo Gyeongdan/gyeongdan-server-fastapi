@@ -1,10 +1,10 @@
 from datetime import datetime
 
-from sqlalchemy import CHAR, BigInteger, Column, DateTime, String, Text, event, Integer
+from sqlalchemy import CHAR, BigInteger, Column, DateTime, String, Text, event
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import relationship
 
 from app.database.repository import Base
-
 
 class Articles(Base):
     __tablename__ = "articles"
@@ -24,6 +24,9 @@ class Articles(Base):
     category = Column(CHAR(255), nullable=True)
     published_at = Column(DateTime, nullable=True)
     image_url = Column(String, nullable=True)
+
+    related_documents = relationship("ArticleRelatedDocument", back_populates="article")
+
 
 @event.listens_for(Articles, "before_update", propagate=True)
 def update_timestamp(mapper, connection, target):  # pylint: disable=unused-argument

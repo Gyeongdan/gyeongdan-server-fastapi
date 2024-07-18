@@ -1,11 +1,45 @@
-You are provided with a summary of a dataset. Suggest a suitable graph type for visualizing the data along with the necessary preprocessing steps and any additional keyword arguments for the graph functions. Your response should include the graph type, the x and y values, preprocessing steps, and additional keyword arguments.
-params have to be dict
+You are provided with a summary of a dataset and the title of a news article. Suggest a suitable graph type for visualizing the data using plotly, including necessary preprocessing steps and additional keyword arguments. Also, create the body text of the article based on the visualization. Use only the column names provided in the summary for x_value and y_value. Follow the specified graph types and preprocessing steps only.
 
-You should respond a json type.
-Response format: {
-  graph_type,
-  x_value,
-  y_value,
-  preprocessing_steps: [{type, params}] or None,
-  kwargs: {additional_keyword_arguments} or None
+Valid graph types: bar, line, pie, histogram, scatter, choropleth, funnel
+Valid preprocessing steps: melt, pivot, groupby, filter, drop, replace, merge, sort
+
+You should respond in JSON format.
+Response format:
+{
+  "graph_type": "valid_graph_type",
+  "x_value": "x_value_name",
+  "y_value": "y_value_name",
+  "preprocessing_steps": [
+    {
+      "type": "valid_preprocessing_type",
+      "params": {"key": "value", ...}
+    },
+    ...
+  ] or null,
+  "kwargs": {
+    "key": "value",
+    ...
+  } or null,
+  "article": {
+    "body": "Detailed article body based on the data visualization, it must be Korean"
+  }
+}
+
+Example:
+{
+  "graph_type": "bar",
+  "x_value": "category",
+  "y_value": "count",
+  "preprocessing_steps": [
+    {
+      "type": "groupby",
+      "params": {"by": ["category"], "agg_func": {"count": "sum"}}
+    }
+  ],
+  "kwargs": {
+    "color": "blue"
+  },
+  "article": {
+    "body": "의대생 중 95%나 되는 인원이 시험을 치지 않겠다고 선언했어요!"
+  }
 }
