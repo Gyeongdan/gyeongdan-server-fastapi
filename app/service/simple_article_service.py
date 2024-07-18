@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 
 from langchain.schema import Document
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.model.article_publisher import find_publisher

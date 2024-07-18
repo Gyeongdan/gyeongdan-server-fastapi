@@ -17,3 +17,12 @@ class RecommendRepository:
                 "recommend_article_ids": article_ids
             },
         )
+
+    async def get(self, pk: int, session: AsyncSession):
+        repository = get_repository(Recommend)(session)
+        recommend = await repository.get(pk)
+        if recommend is None:
+            raise HTTPException(
+                status_code=404, detail="해당 classification이 존재하지 않습니다."
+            )
+        return recommend
