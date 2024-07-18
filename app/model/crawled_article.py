@@ -27,6 +27,7 @@ class Articles(Base):
 
     related_documents = relationship("ArticleRelatedDocument", back_populates="article")
 
+
 @event.listens_for(Articles, "before_update", propagate=True)
 def update_timestamp(mapper, connection, target):  # pylint: disable=unused-argument
     target.updated_at = datetime.now()
