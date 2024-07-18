@@ -11,7 +11,10 @@ from app.service.user_type_service import UserTypes
 class UserTypeRepository:
     async def create(self, user_type: UserType, session: AsyncSession):
         repository = get_repository(UserType)(session)
-        return await repository.create(model_to_dict(user_type))
+        try:
+            return await repository.create(model_to_dict(user_type))
+        except:
+            return await self.get(user_type.user_id, session)
 
     async def get(self, pk: int, session: AsyncSession):
         repository = get_repository(UserType)(session)
