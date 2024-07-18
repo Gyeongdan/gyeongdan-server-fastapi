@@ -1,7 +1,9 @@
 import asyncio
+from typing import Optional
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.exceptions import HTTPException
 
 from app.config.exception_handler import exception_handler, http_exception_handler
@@ -14,7 +16,6 @@ from app.router.generate_simple_article_router import simple_article_router
 from app.router.send_email_service_router import send_email_service_router
 from app.router.user_type_router import user_type_router
 from app.service.news_scheduling_service import schedule_task
-from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
@@ -29,9 +30,11 @@ app.add_middleware(
     allow_headers=["*"],  # 모든 HTTP 헤더 허용
 )
 
+
 @app.on_event("startup")
 async def startup_event():
     asyncio.create_task(schedule_task())
+
 
 # load env
 load_dotenv()
@@ -50,6 +53,7 @@ app.include_router(api_visualization_router)
 app.add_exception_handler(Exception, exception_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)
 
+
 @app.get("/health")
-async def health_check():
+async def health_check(q: Optional[str] = None):  # pylint: disable=unused-argument
     return {"status": "OK"}
