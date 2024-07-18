@@ -39,3 +39,8 @@ app.include_router(api_visualization_router)
 # exception handlers
 app.add_exception_handler(Exception, exception_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)
+
+
+@app.get("/health")
+async def health_check():
+    return {"status": "OK"}
