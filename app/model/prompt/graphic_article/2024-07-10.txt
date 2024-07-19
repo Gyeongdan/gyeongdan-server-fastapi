@@ -19,3 +19,6 @@ Response format:
 	    "body": 매일의 판매액을 한눈에 볼 수 있게 했어요 📈\n매출 데이터는 날짜별로 그룹화했어요 🗓️\n날짜 순서대로 정렬했어요 📅\n그래프에서 각 날짜의 판매액을 확인할 수 있어요 🛒\n이제 일별 매출 트렌드를 알 수 있어요 😊
 	}
 }
+경고: groupby에서 preprocess_groupby 메서드를 사용할 때는 다음과 같이 받아와야 합니다.
+async def preprocess_groupby(self, df, by, agg_func):
+    return df.groupby(by).agg(agg_func).reset_index()

@@ -2,12 +2,12 @@
 # pylint: disable=R0911
 # pylint: disable=C0206
 # pylint: disable=C0327
+import json
 from enum import Enum
 from typing import List
 
 import pandas as pd
 import plotly.express as px
-import plotly.io as pio
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -316,31 +316,53 @@ async def create_article(
     if not await graph_service.get_api_data(data):
         raise HTTPException(status_code=400, detail="Couldn't get data")
 
+    # 여기가 ai보고 데이터 받아오라고 하는 곳.
     ai_result = await graph_service.graph_info(title=title)
-
-    fig = await graph_service.plot_graph(
-        ai_result["graph_type"],
-        ai_result["x_value"],
-        ai_result["y_value"],
-        ai_result["preprocessing_steps"],
-        **ai_result["kwargs"],
+    # 전처리 완료
+    await graph_service.apply_preprocessing(
+        graph_service.dataset, ai_result["preprocessing_steps"]
     )
 
-    # html 다 만든 것
-    html_str = pio.to_html(fig, full_html=True)
+    # 그래프 그리는 부분
+    # 근데 이 곳을 제끼고 return 을 달리하라는 거임.
 
-    # 둘 다 html_str은 뱉는 걸로.
-    # return이 두 개입니다.
+    # fig = await graph_service.plot_graph(
+    #     ai_result["graph_type"],
+    #     ai_result["x_value"],
+    #     ai_result["y_value"],
+    #     ai_result["preprocessing_steps"],
+    #     **ai_result["kwargs"],
+    # )
+    #
+    # # html 다 만든 것
+    # html_str = pio.to_html(fig, full_html=True)
+
+    x = graph_service.dataset[ai_result["x_value"]].tolist()
+    y = graph_service.dataset[ai_result["y_value"]].tolist()
+    graph_type = ai_result["graph_type"]
+    # 우선 무슨 값을 넣을 지 몰라서 hard coding 합니다.
+    mode = "lines+markers"
+    marker = "{color: 'red'}"
+
+    data = [{"x": x, "y": y, "type": graph_type, "mode": mode, "marker": marker}]
+
+    layout = {"title": title}
+
+    chart_config = {
+        "data": data,
+        "layout": layout,
+    }
+
+    json_data = json.dumps(chart_config, ensure_ascii=False)
     if user_input:
-        return html_str, ""
+        # 유저의 통제시 그냥 html만 리턴!
+        return json_data, ""
         # 기사를 만드는 경우는 저장을 한다!
-
     repository = ApiVisualizationService()
-    content = ai_result["article"]["body"]
     await repository.create_article(
         title=title,
-        graph_html=html_str,
-        content=content,
+        graph_html=json.dumps(chart_config),
+        content=ai_result["article"]["body"],
         session=session,
     )
-    return html_str, content
+    return json_data, ai_result["article"]["body"]
