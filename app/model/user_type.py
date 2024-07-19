@@ -1,6 +1,7 @@
 from enum import Enum
 
-from sqlalchemy import BigInteger, Column, Integer, CHAR
+from pydantic import BaseModel
+from sqlalchemy import CHAR, BigInteger, Column, Integer
 
 from app.database.repository import Base
 
@@ -19,16 +20,28 @@ class UserType(Base):
 
 
 class UserTypes(Enum):
-    NONE= {'id':-1,
-           'name':'NONE'
-           }
-    ISSUE_FINDER= {'id':0,
-                   'name':'ISSUE_FINDER'}
-    LIFESTYLE_CONSUMER= {'id':1,
-                         'name':'LIFESTYLE_CONSUMER'}
-    ENTERTAINER= {'id':2,
-                  'name':'ENTERTAINER'}
-    TECH_SPECIALIST= {'id':3,
-                      'name':'TECH_SPECIALIST'}
-    PROFESSIONALS= {'id':4,
-                    'name':'PROFESSIONALS'}
+    NONE = {"id": -1, "name": "NONE"}
+    ISSUE_FINDER = {"id": 0, "name": "ISSUE_FINDER"}
+    LIFESTYLE_CONSUMER = {"id": 1, "name": "LIFESTYLE_CONSUMER"}
+    ENTERTAINER = {"id": 2, "name": "ENTERTAINER"}
+    TECH_SPECIALIST = {"id": 3, "name": "TECH_SPECIALIST"}
+    PROFESSIONALS = {"id": 4, "name": "PROFESSIONALS"}
+
+
+class UserTypePercent(BaseModel):
+    issueFinder: int
+    lifestyleConsumer: int
+    entertainer: int
+    techSpecialist: int
+    professionals: int
+
+    def get_dominant_type(self) -> str:
+        max_value = max(self.dict().values())
+        for key, value in self.dict().items():
+            if value == max_value:
+                for user_type in UserTypes:
+                    if user_type.name.lower() == key.lower():
+                        return user_type.name
+                return UserTypes.NONE.name
+
+        return UserTypes.NONE.name
