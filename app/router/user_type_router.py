@@ -1,10 +1,11 @@
-from typing import Dict, List
+from typing import List
 
 from fastapi import APIRouter, Depends
 from groq import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.session import get_db_session
+from app.model.user_type import UserTypePercent
 from app.recommend.recommend_service import user_type_to_classification_id
 from app.repository.crawled_article_crud import CrawledArticleRepository
 from app.repository.recommend_crud import RecommendRepository
@@ -28,7 +29,8 @@ class ArticleResponseDTO(BaseModel):
 
 
 class UserTypeResponseDTO(BaseModel):
-    userType: Dict
+    percent: UserTypePercent
+    userType: str
     recommendNews: List[ArticleResponseDTO]
 
 
@@ -69,16 +71,19 @@ async def create_user_type_by_answers(
             )
         )
 
+    percent = UserTypePercent(
+        issueFinder=userType[0],
+        lifestyleConsumer=userType[1],
+        entertainer=userType[2],
+        techSpecialist=userType[3],
+        professionals=userType[4],
+    )
+
     return GenericResponseDTO[UserTypeResponseDTO](
         data=UserTypeResponseDTO(
-            userType={
-                "ISSUE_FINDER": userType[0],
-                "LIFESTYLE_CONSUMER": userType[1],
-                "ENTERTAINER": userType[2],
-                "TECH_SPECIALIST": userType[3],
-                "PROFESSIONALS": userType[4],
-            },
+            percent=percent,
             recommendNews=recommendNews,
+            userType=percent.get_dominant_type(),
         ),
         message="유형검사 결과가 성공",
         result=True,
