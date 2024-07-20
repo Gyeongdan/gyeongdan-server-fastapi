@@ -19,7 +19,6 @@ class UserType(Base):
     user_type = Column(CHAR(255), nullable=True)
 
 
-# Define the UserTypes Enum with their names and ids
 class UserTypes(Enum):
     NONE = {"id": -1, "name": "NONE"}
     ISSUE_FINDER = {"id": 0, "name": "ISSUE_FINDER"}
@@ -45,22 +44,15 @@ class UserTypePercent(BaseModel):
 
     def get_dominant_type(self) -> str:
         type_percentages = self.dict()
-        max_value = max(type_percentages.values(), default=0)
+        max_value = 0
+        dominant_type = UserTypes.LIFESTYLE_CONSUMER
 
         for key, value in type_percentages.items():
-            if value == max_value:
+            if value > max_value:
+                max_value = value
                 user_type = UserTypes.get_by_name(key)
                 if user_type:
-                    return user_type.name
-
-        return UserTypes.LIFESTYLE_CONSUMER.name
-
-
-# Example usage
-percentages = UserTypePercent(
-    issueFinder=10,
-    lifestyleConsumer=20,
-    entertainer=20,
-    techSpecialist=5,
-    professionals=15,
-)
+                    dominant_type = user_type
+        if dominant_type == UserTypes.NONE:
+            return UserTypes.LIFESTYLE_CONSUMER.name
+        return dominant_type.name
