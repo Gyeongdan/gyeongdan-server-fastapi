@@ -19,7 +19,6 @@ class UserType(Base):
     user_type = Column(CHAR(255), nullable=True)
 
 
-# Define the UserTypes Enum with their names and ids
 class UserTypes(Enum):
     NONE = {"id": -1, "name": "NONE"}
     ISSUE_FINDER = {"id": 0, "name": "ISSUE_FINDER"}
@@ -57,13 +56,3 @@ class UserTypePercent(BaseModel):
         if dominant_type == UserTypes.NONE:
             return UserTypes.LIFESTYLE_CONSUMER.name
         return dominant_type.name
-
-
-# Example usage
-percentages = UserTypePercent(
-    issueFinder=10,
-    lifestyleConsumer=20,
-    entertainer=20,
-    techSpecialist=5,
-    professionals=15,
-)
